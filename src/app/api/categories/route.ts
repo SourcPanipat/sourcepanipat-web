@@ -3,8 +3,6 @@ import { db, isDatabaseConfigured } from '@/db';
 import { categories, subCategories } from '@/db/schema';
 import { CATEGORIES } from '@/lib/mock-catalog';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     if (isDatabaseConfigured()) {
