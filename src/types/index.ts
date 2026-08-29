@@ -2,6 +2,16 @@ export type BuyMode = 'sealed_bale' | 'curated_lot';
 
 export type SourcingMode = 'bale_only' | 'pieces_only' | 'both';
 
+export type ListingStatus = 'draft' | 'pending_approval' | 'approved' | 'rejected';
+
+export type SellerVerificationStatus = 'pending_approval' | 'approved' | 'rejected';
+
+export type GodownZone = 
+  | 'Sanoli Road Godown Hub'
+  | 'Noorwala Industrial Area'
+  | 'Barsat Road Sorting Yard'
+  | 'G.T. Road Wholesale Cluster';
+
 export interface Category {
   id: string;
   name: string;
@@ -53,7 +63,7 @@ export interface VideoGradeClip {
   durationSeconds: number; // 30s
   label: string;
   description: string;
-  conditionNotes: string[];
+  conditionNotes?: string[];
 }
 
 export interface MediaItem {
@@ -71,12 +81,45 @@ export interface MaskedSeller {
   id: string; // e.g. 'PNP-001'
   maskedCode: string; // '#PNP-001'
   supplierTier: 'Gold Vetted Importer' | 'Direct Mill Godown' | 'Graded Sorting Hub';
-  godownZone: 'Sanoli Road Godown Hub' | 'Noorwala Industrial Area' | 'Barsat Road Sorting Yard';
+  godownZone: 'Sanoli Road Godown Hub' | 'Noorwala Industrial Area' | 'Barsat Road Sorting Yard' | 'G.T. Road Wholesale Cluster';
   rating: number; // 4.9
+  trustScore?: number; // e.g. 100 or 98.5
   totalDispatchedBales: number;
   repeatBuyerRate: number; // e.g. 94%
   isVerified: boolean;
   memberSince: string;
+}
+
+export interface SellerProfile {
+  id: string;
+  maskedCode: string; // e.g. '#PNP-001'
+  fullName: string;
+  phone: string;
+  email: string;
+  businessName: string;
+  godownZone: GodownZone;
+  yardAddress: string;
+  primaryInventoryTypes: string[];
+  logoUrl?: string;
+  gstin?: string;
+  isGstinRegistered: boolean;
+  bankAccountNumber: string;
+  bankIfscCode: string;
+  accountHolderName: string;
+  bankName: string;
+  gstDocUrl?: string;
+  yardPhotoUrl?: string;
+  verificationStatus: SellerVerificationStatus;
+  rejectionReason?: string;
+  approvedAt?: string;
+  rating: number;
+  trustScore: number; // Starts at 100.0
+  totalOrders: number;
+  fulfilledOrders: number;
+  cancelledOrders: number;
+  totalDispatchedBales: number;
+  repeatBuyerRate: number;
+  createdAt: string;
 }
 
 export interface BaleListing {
@@ -92,6 +135,11 @@ export interface BaleListing {
   originFlag: string;
   thumbnailUrl: string;
   galleryImages: string[];
+  
+  // Listing Approval Workflow & Staging
+  status?: ListingStatus; // 'draft' | 'pending_approval' | 'approved' | 'rejected'
+  pendingEditJson?: string;
+  rejectionReason?: string;
   
   // Flexible Sourcing Mode
   sourcingMode: SourcingMode; // 'bale_only' | 'pieces_only' | 'both'
@@ -126,6 +174,42 @@ export interface BaleListing {
   recommendedResaleChannel: string;
   expectedGrossMargin: string;
   tags: string[];
+  createdAt: string;
+}
+
+// Seller-side listing view item
+export interface BaleListingItem {
+  id: string;
+  slug: string;
+  sellerId: string;
+  categoryId: string;
+  subCategoryId: string;
+  categoryLabel: string;
+  title: string;
+  shortDescription: string;
+  sourcingMode: SourcingMode;
+  originCountry: string;
+  originFlag: string;
+  thumbnailUrl: string;
+  galleryImages: string[];
+  weightKg: number;
+  estimatedPieceCount: number;
+  sealedBalePrice: number;
+  curatedPiecePrice: number;
+  curatedMoq: number;
+  gradeA: number;
+  gradeB: number;
+  gradeC: number;
+  videos: VideoGradeClip[];
+  photos: string[];
+  godownBatchId: string;
+  qcVerified: boolean;
+  inStockCount: number;
+  fabricComposition: string;
+  expectedGrossMargin: string;
+  status: ListingStatus; // 'draft' | 'pending_approval' | 'approved' | 'rejected'
+  pendingEditJson?: string;
+  rejectionReason?: string;
   createdAt: string;
 }
 
@@ -182,6 +266,10 @@ export interface EscrowOrderRecord {
   totalPayable: number;
   escrowStatus: OrderStage;
   currentStageIndex: number; // 0 to 4
+  sellerStatus?: 'new' | 'confirmed' | 'dispatched' | 'completed' | 'cancelled_by_seller';
+  settlementStatus?: 'escrow_locked' | 'bank_transferred';
+  settlementDate?: string;
+  settlementUtr?: string;
   createdAt: string;
   estimatedDispatch: string;
   buyerName: string;
@@ -206,6 +294,36 @@ export interface EscrowOrderRecord {
     dispatchDate: string;
     scanImageUrl: string;
   };
+}
+
+export interface SellerOrderDispatch {
+  id: string;
+  orderNumber: string;
+  baleId: string;
+  baleTitle: string;
+  baleThumbnail: string;
+  baleWeightKg: number;
+  buyMode: 'sealed_bale' | 'curated_lot';
+  quantity: number;
+  totalAmount: number;
+  buyerName?: string;
+  buyerPhone?: string;
+  buyerBusinessName?: string;
+  buyerCity: string;
+  buyerState: string;
+  deliveryAddress?: string;
+  escrowStatus: OrderStage;
+  sellerStatus: 'new' | 'confirmed' | 'dispatched' | 'completed' | 'cancelled_by_seller';
+  settlementStatus: 'escrow_locked' | 'bank_transferred';
+  settlementDate?: string;
+  settlementUtr?: string;
+  inspectorName?: string;
+  inspectorPhone?: string;
+  verifiedTareWeightKg?: number;
+  biltiLrNumber?: string;
+  transporterName?: string;
+  biltiScanUrl?: string;
+  createdAt: string;
 }
 
 export interface EscrowOrderRequest {
@@ -236,3 +354,4 @@ export interface EscrowOrderResponse {
   estimatedDispatch: string;
   createdAt: string;
 }
+

@@ -265,18 +265,21 @@ export function VideoGradeModal({
               <span className="text-[10.5px] font-mono text-amber-400">92% Grade A Inspected</span>
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">{currentClip.description}</p>
-            <div className="flex flex-wrap gap-1.5 pt-0.5">
-              {currentClip.conditionNotes.map((note, nIdx) => (
-                <span
-                  key={nIdx}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300 border border-slate-700 font-medium"
-                >
-                  <Check className="w-3 h-3 text-emerald-400" />
-                  {note}
-                </span>
-              ))}
-            </div>
+            {currentClip.conditionNotes && currentClip.conditionNotes.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {currentClip.conditionNotes.map((note, nIdx) => (
+                  <span
+                    key={nIdx}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300 border border-slate-700 font-medium"
+                  >
+                    <Check className="w-3 h-3 text-emerald-400" />
+                    {note}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
+
 
           {/* Pricing & Escrow Action */}
           <div className="flex items-center justify-between pt-2 border-t border-slate-800">

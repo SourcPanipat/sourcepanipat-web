@@ -38,25 +38,58 @@ export const users = sqliteTable('users', {
   createdAt: text('created_at').notNull(),
 });
 
-// 4. Masked Sellers Table (Panipat Godowns & Importers)
-export const sellers = sqliteTable('sellers', {
+// 4. Seller Profiles Table (Panipat Godowns, Importers & Vetted Mills)
+export const sellerProfiles = sqliteTable('seller_profiles', {
   id: text('id').primaryKey(), // e.g. 'pnp-001'
   maskedCode: text('masked_code').notNull().unique(), // '#PNP-001'
-  supplierTier: text('supplier_tier').notNull(), // 'Gold Vetted Importer' | 'Direct Mill Godown' | 'Graded Sorting Hub'
+  fullName: text('full_name').notNull(),
+  phone: text('phone').notNull().unique(),
+  email: text('email').notNull().unique(),
+  businessName: text('business_name').notNull(),
+  supplierTier: text('supplier_tier').default('Gold Vetted Importer'), // 'Gold Vetted Importer' | 'Direct Mill Godown' | 'Graded Sorting Hub'
   godownZone: text('godown_zone').notNull(), // 'Sanoli Road Godown Hub' | 'Noorwala Industrial Area' | 'Barsat Road Sorting Yard'
+  yardAddress: text('yard_address').notNull(),
+  primaryInventoryTypes: text('primary_inventory_types'), // JSON string array
+  logoUrl: text('logo_url'), // 90% compressed logo URL
+  
+  // Banking & Financials
+  gstin: text('gstin'),
+  isGstinRegistered: integer('is_gstin_registered', { mode: 'boolean' }).default(true),
+  bankAccountNumber: text('bank_account_number').notNull(),
+  bankIfscCode: text('bank_ifsc_code').notNull(),
+  accountHolderName: text('account_holder_name').notNull(),
+  bankName: text('bank_name').notNull(),
+  
+  // KYC Docs (Cloudflare R2 URLs)
+  gstDocUrl: text('gst_doc_url'),
+  yardPhotoUrl: text('yard_photo_url'),
+  
+  // Vetting Status
+  verificationStatus: text('verification_status').notNull().default('pending_approval'), // 'pending_approval' | 'approved' | 'rejected'
+  rejectionReason: text('rejection_reason'),
+  approvedAt: text('approved_at'),
+  isVerified: integer('is_verified', { mode: 'boolean' }).default(false),
+  
+  // Trust Scoring & Fulfillment Tracking
+  trustScore: real('trust_score').default(100.0).notNull(), // Starts at 100%
+  totalOrders: integer('total_orders').default(0).notNull(),
+  fulfilledOrders: integer('fulfilled_orders').default(0).notNull(),
+  cancelledOrders: integer('cancelled_orders').default(0).notNull(),
   rating: real('rating').default(4.9),
   totalDispatchedBales: integer('total_dispatched_bales').default(0),
-  repeatBuyerRate: integer('repeat_buyer_rate').default(92),
-  isVerified: integer('is_verified', { mode: 'boolean' }).default(true),
-  memberSince: text('member_since').notNull(),
-  createdAt: text('created_at').notNull(),
+  repeatBuyerRate: integer('repeat_buyer_rate').default(95),
+  memberSince: text('member_since'),
+  createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
+
+// Backward compatibility alias for legacy references
+export const sellers = sellerProfiles;
 
 // 5. Bales & Wholesale Inventory Catalog Table
 export const bales = sqliteTable('bales', {
   id: text('id').primaryKey(),
   slug: text('slug').notNull().unique(),
-  sellerId: text('seller_id').notNull().references(() => sellers.id),
+  sellerId: text('seller_id').notNull().references(() => sellerProfiles.id),
   categoryId: text('category_id').references(() => categories.id),
   subCategoryId: text('sub_category_id').references(() => subCategories.id),
   title: text('title').notNull(),
@@ -67,6 +100,12 @@ export const bales = sqliteTable('bales', {
   originFlag: text('origin_flag').notNull(),
   thumbnailUrl: text('thumbnail_url').notNull(),
   galleryImages: text('gallery_images').notNull(), // JSON string array
+  
+  // Listing Approval Workflow & Staging
+  status: text('status').notNull().default('pending_approval'), // 'draft' | 'pending_approval' | 'approved' | 'rejected'
+  pendingEditJson: text('pending_edit_json'), // Holds unapproved edits JSON snapshot until admin review
+  rejectionReason: text('rejection_reason'),
+  statusUpdatedAt: text('status_updated_at'),
   
   // Weight & Lot metrics
   weightKg: real('weight_kg').notNull(), // e.g. 80.0
@@ -109,7 +148,7 @@ export const orders = sqliteTable('orders', {
   orderNumber: text('order_number').notNull().unique(), // e.g. 'SP-ESCROW-782190'
   buyerId: text('buyer_id').references(() => users.id),
   baleId: text('bale_id').notNull().references(() => bales.id),
-  sellerId: text('seller_id').notNull().references(() => sellers.id),
+  sellerId: text('seller_id').notNull().references(() => sellerProfiles.id),
   buyMode: text('buy_mode').notNull(), // 'sealed_bale' | 'curated_lot'
   quantityBales: integer('quantity_bales').default(1),
   curatedPieceCount: integer('curated_piece_count').default(0),
@@ -125,6 +164,18 @@ export const orders = sqliteTable('orders', {
   escrowStatus: text('escrow_status').notNull().default('ESCROW_LOCKED'),
   // 'ESCROW_LOCKED' | 'INSPECTOR_ASSIGNED' | 'QC_APPROVAL_PENDING' | 'DISPATCHED_BILTI_UPLOADED' | 'DELIVERED_SETTLED'
   currentStageIndex: integer('current_stage_index').default(0).notNull(),
+  
+  // Seller Order Workflow & Trust Scoring
+  sellerStatus: text('seller_status').notNull().default('new'), // 'new' | 'confirmed' | 'dispatched' | 'completed' | 'cancelled_by_seller'
+  sellerConfirmedAt: text('seller_confirmed_at'),
+  sellerCancelledAt: text('seller_cancelled_at'),
+  sellerCancellationReason: text('seller_cancellation_reason'),
+  
+  // Settlement & Escrow Payouts
+  settlementStatus: text('settlement_status').notNull().default('escrow_locked'), // 'escrow_locked' | 'bank_transferred'
+  settlementDate: text('settlement_date'),
+  settlementUtr: text('settlement_utr'),
+  netPayoutAmount: integer('net_payout_amount'),
   
   // Shipping & Consignee
   shippingName: text('shipping_name').notNull(),
@@ -181,3 +232,4 @@ export const buyerAddresses = sqliteTable('buyer_addresses', {
   transportPreference: text('transport_preference').notNull().default('V-Trans / TCI Freight'),
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
+

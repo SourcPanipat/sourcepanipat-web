@@ -112,17 +112,24 @@ export function ProductCard({ bale, onPreviewVideo }: ProductCardProps) {
           </div>
         </div>
 
-        {/* Line 4: Location & QC Shield Footer */}
+        {/* Line 4: Location & Seller Trust Score / QC Shield Footer */}
         <div className="pt-1.5 mt-0.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-          <span className="truncate max-w-[120px]">
-            {bale.seller?.godownZone ? bale.seller.godownZone.split(' ')[0] : 'Sanoli'} Hub, Panipat
+          <span className="truncate max-w-[110px]">
+            {bale.seller?.godownZone ? bale.seller.godownZone.split(' ')[0] : 'Sanoli'} Hub
           </span>
-          <span className="flex items-center gap-0.5 text-emerald-700 font-medium shrink-0">
-            <ShieldCheck className="w-3 h-3 text-emerald-600" />
-            <span>QC Shield</span>
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-[9.5px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded flex items-center gap-0.5">
+              <span>★</span>
+              <span>{bale.seller?.trustScore || 100}%</span>
+            </span>
+            <span className="flex items-center gap-0.5 text-slate-600 font-medium">
+              <ShieldCheck className="w-3 h-3 text-emerald-600" />
+              <span>QC</span>
+            </span>
+          </div>
         </div>
       </div>
     </Link>
   );
 }
+

@@ -29,7 +29,8 @@ export function ProductFeed({ bales, onPreviewVideo }: ProductFeedProps) {
   }, [bales.length]);
 
   const sortedBales = React.useMemo(() => {
-    return [...bales].sort((a, b) => {
+    const approvedOnly = bales.filter(b => !b.status || b.status === 'approved');
+    return [...approvedOnly].sort((a, b) => {
       if (sortBy === 'price_low') return a.sealedBalePrice - b.sealedBalePrice;
       if (sortBy === 'price_high') return b.sealedBalePrice - a.sealedBalePrice;
       if (sortBy === 'weight') return b.weightKg - a.weightKg;

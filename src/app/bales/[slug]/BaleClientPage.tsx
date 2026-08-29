@@ -330,6 +330,10 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                       <ShieldCheck className="w-3 h-3 text-emerald-600" />
                       Verified Yard
                     </span>
+                    <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-1.5 py-0.2 rounded flex items-center gap-1">
+                      <span>★</span>
+                      <span>{bale.seller?.trustScore || 100}% Trust</span>
+                    </span>
                   </div>
                   <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
                     <span className="flex items-center gap-1">
@@ -343,7 +347,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                <span className="text-xs text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 font-medium">
                   Direct Godown Gate Dispatch
                 </span>
               </div>

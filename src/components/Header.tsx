@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { BuyerUser } from '@/types';
+import { BuyerUser, SellerProfile } from '@/types';
 import { AuthModal } from './AuthModal';
 import { 
   MapPin, 
@@ -18,9 +18,12 @@ import {
   LogIn, 
   LogOut, 
   PackageCheck, 
-  Building, 
+  Building2, 
   MapPinned,
-  ExternalLink
+  ExternalLink,
+  Store,
+  LayoutDashboard,
+  Clock
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -42,6 +45,7 @@ export function Header({
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<'signup' | 'signin'>('signup');
   const [currentUser, setCurrentUser] = useState<BuyerUser | null>(null);
+  const [activeSeller, setActiveSeller] = useState<SellerProfile | null>(null);
   const [selectedYard, setSelectedYard] = useState('Panipat Wholesale Yard');
 
   const profileRef = useRef<HTMLDivElement>(null);
@@ -49,13 +53,18 @@ export function Header({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('sp_buyer_user');
-      if (stored) {
+      const storedBuyer = localStorage.getItem('sp_buyer_user');
+      if (storedBuyer) {
         try {
-          setCurrentUser(JSON.parse(stored));
-        } catch (e) {
-          // ignore
-        }
+          setCurrentUser(JSON.parse(storedBuyer));
+        } catch (e) {}
+      }
+
+      const storedSeller = localStorage.getItem('sp_active_seller');
+      if (storedSeller) {
+        try {
+          setActiveSeller(JSON.parse(storedSeller));
+        } catch (e) {}
       }
     }
   }, []);
@@ -117,15 +126,13 @@ export function Header({
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-slate-500 text-[11px]">
-            <a
-              href="http://localhost:3001"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-slate-900 font-medium flex items-center gap-1 transition-colors"
+            <Link
+              href="/seller"
+              className="hover:text-slate-900 font-medium flex items-center gap-1 transition-colors text-amber-700 font-semibold"
             >
-              <span>Seller Godown Desk</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
+              <Store className="w-3.5 h-3.5 text-amber-600" />
+              <span>Seller Godown Portal</span>
+            </Link>
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-emerald-600" />
               Verified Inspection Shield
@@ -257,8 +264,42 @@ export function Header({
 
               {/* Profile Dropdown Menu */}
               {isProfileMenuOpen && (
-                <div className="absolute top-full mt-2 right-0 w-64 bg-white border border-slate-200 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 text-xs">
+                <div className="absolute top-full mt-2 right-0 w-68 bg-white border border-slate-200 rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 text-xs">
                   
+                  {/* SELLER QUICK-SWITCH ACTION (IF DETECTED) */}
+                  {activeSeller && activeSeller.verificationStatus === 'approved' ? (
+                    <div className="mb-2 p-2 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="font-mono font-bold text-amber-900">{activeSeller.maskedCode}</span>
+                        <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
+                          ★ {activeSeller.trustScore || 100}% Trust
+                        </span>
+                      </div>
+                      <Link
+                        href="/seller/dashboard"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        className="w-full py-1.5 px-2.5 rounded-md bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                      >
+                        <LayoutDashboard className="w-3.5 h-3.5" />
+                        <span>Open Godown Dashboard →</span>
+                      </Link>
+                    </div>
+                  ) : activeSeller && activeSeller.verificationStatus === 'pending_approval' ? (
+                    <div className="mb-2 p-2 rounded-lg bg-amber-50 border border-amber-200">
+                      <div className="text-[11px] font-semibold text-amber-900 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-amber-700" />
+                        <span>Seller Application Pending</span>
+                      </div>
+                      <Link
+                        href="/seller/status/pending"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        className="text-[10.5px] font-bold text-amber-800 hover:underline block mt-0.5"
+                      >
+                        View Verification Status →
+                      </Link>
+                    </div>
+                  ) : null}
+
                   {currentUser ? (
                     /* Authenticated State */
                     <div className="space-y-1">
@@ -280,7 +321,7 @@ export function Header({
                         </div>
                       </div>
 
-                      {/* Menu Links */}
+                      {/* Buyer Links */}
                       <Link
                         href="/profile"
                         onClick={() => setIsProfileMenuOpen(false)}
@@ -299,22 +340,45 @@ export function Header({
                         <span>My Escrow Orders</span>
                       </Link>
 
+                      {/* Seller Opportunities for Buyer */}
+                      {(!activeSeller || activeSeller.verificationStatus !== 'approved') && (
+                        <div className="pt-1 my-1 border-t border-slate-100 space-y-1">
+                          <Link
+                            href="/seller/register"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                            className="w-full px-3 py-1.5 rounded-lg hover:bg-amber-50 text-amber-900 font-semibold flex items-center gap-2.5 transition-colors"
+                          >
+                            <Store className="w-4 h-4 text-amber-600" />
+                            <span>Become a Godown Seller</span>
+                          </Link>
+
+                          <Link
+                            href="/seller/login"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                            className="w-full px-3 py-1.5 rounded-lg hover:bg-slate-100 text-slate-700 flex items-center gap-2.5 transition-colors text-[11px]"
+                          >
+                            <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Seller Portal Login</span>
+                          </Link>
+                        </div>
+                      )}
+
                       <a
                         href="https://wa.me/919876543210"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full px-3 py-2 rounded-lg hover:bg-emerald-50 text-emerald-800 flex items-center gap-2.5 font-medium transition-colors"
+                        className="w-full px-3 py-1.5 rounded-lg hover:bg-emerald-50 text-emerald-800 flex items-center gap-2.5 font-medium transition-colors text-[11px]"
                       >
-                        <Phone className="w-4 h-4 text-emerald-600" />
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
                         <span>Trader Desk (+91 98765 43210)</span>
                       </a>
 
                       <div className="pt-1 mt-1 border-t border-slate-100">
                         <button
                           onClick={handleSignOut}
-                          className="w-full px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-700 flex items-center gap-2.5 font-medium transition-colors text-left"
+                          className="w-full px-3 py-1.5 rounded-lg hover:bg-rose-50 text-rose-700 flex items-center gap-2.5 font-medium transition-colors text-left"
                         >
-                          <LogOut className="w-4 h-4" />
+                          <LogOut className="w-3.5 h-3.5" />
                           <span>Sign Out</span>
                         </button>
                       </div>
@@ -334,7 +398,7 @@ export function Header({
                         className="w-full px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold flex items-center gap-2.5 transition-colors text-left mt-1 shadow-xs"
                       >
                         <UserPlus className="w-4 h-4 text-amber-400" />
-                        <span>Create Account</span>
+                        <span>Create Buyer Account</span>
                       </button>
 
                       <button
@@ -342,7 +406,7 @@ export function Header({
                         className="w-full px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-800 font-semibold flex items-center gap-2.5 transition-colors text-left"
                       >
                         <LogIn className="w-4 h-4 text-slate-600" />
-                        <span>Sign In</span>
+                        <span>Buyer Sign In</span>
                       </button>
 
                       <Link
@@ -351,8 +415,29 @@ export function Header({
                         className="w-full px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-700 font-medium flex items-center gap-2.5 transition-colors"
                       >
                         <PackageCheck className="w-4 h-4 text-slate-500" />
-                        <span>My Orders</span>
+                        <span>Track My Orders</span>
                       </Link>
+
+                      {/* Seller Direct Entry */}
+                      <div className="pt-1 my-1 border-t border-slate-100 space-y-1">
+                        <Link
+                          href="/seller/register"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="w-full px-3 py-1.5 rounded-lg hover:bg-amber-50 text-amber-900 font-semibold flex items-center gap-2.5 transition-colors"
+                        >
+                          <Store className="w-4 h-4 text-amber-600" />
+                          <span>Become a Godown Seller</span>
+                        </Link>
+
+                        <Link
+                          href="/seller/login"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="w-full px-3 py-1.5 rounded-lg hover:bg-slate-100 text-slate-700 flex items-center gap-2.5 transition-colors text-[11px]"
+                        >
+                          <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Seller Desk Login</span>
+                        </Link>
+                      </div>
 
                       <div className="pt-1 mt-1 border-t border-slate-100">
                         <a
@@ -389,3 +474,4 @@ export function Header({
     </header>
   );
 }
+
