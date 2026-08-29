@@ -208,12 +208,12 @@ export function VideoGradeModal({
           )}
         </div>
 
-        {/* Media Selector Strip (Video Clips & High-Res Photos) */}
+        {/* Media Selector Strip (Amazon-Style Visual Thumbnails) */}
         <div className="p-3.5 bg-slate-900 border-t border-slate-800 space-y-3 overflow-y-auto">
           
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             
-            {/* Dynamic 30s Video Clips */}
+            {/* Dynamic Video Visual Thumbnails */}
             {videoClips.map((clip, idx) => {
               const isSelected = activeMediaMode === 'video' && activeClipIndex === idx;
               return (
@@ -223,19 +223,31 @@ export function VideoGradeModal({
                     setActiveMediaMode('video');
                     setActiveClipIndex(idx);
                   }}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                  className={`relative w-14 h-11 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black flex flex-col items-center justify-center group ${
                     isSelected
-                      ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-xs'
-                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                      ? 'border-amber-400 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-900'
+                      : 'border-slate-700 opacity-80 hover:opacity-100'
                   }`}
+                  title={`Video ${idx + 1}`}
                 >
-                  <Film className="w-3.5 h-3.5" />
-                  <span>{clip.label || (videoClips.length > 1 ? `Video ${idx + 1}` : '30s Video')}</span>
+                  <img
+                    src={bale.thumbnailUrl}
+                    alt={`Video ${idx + 1}`}
+                    className="w-full h-full object-cover opacity-60"
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 group-hover:bg-black/10">
+                    <div className="w-4 h-4 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-xs">
+                      <Play className="w-2 h-2 fill-current ml-0.5" />
+                    </div>
+                    <span className="text-[7.5px] font-black text-white uppercase tracking-wider mt-0.5">
+                      VIDEO {videoClips.length > 1 ? idx + 1 : ''}
+                    </span>
+                  </div>
                 </button>
               );
             })}
 
-            {/* Dynamic Gallery Images */}
+            {/* Dynamic Photo Visual Thumbnails */}
             {galleryImages.map((img, idx) => {
               const isSelected = activeMediaMode === 'gallery' && activeImageIndex === idx;
               return (
@@ -245,11 +257,12 @@ export function VideoGradeModal({
                     setActiveMediaMode('gallery');
                     setActiveImageIndex(idx);
                   }}
-                  className={`relative w-12 h-9 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
+                  className={`relative w-14 h-11 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black ${
                     isSelected
-                      ? 'border-amber-400 scale-105 shadow-md'
+                      ? 'border-amber-400 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1 ring-offset-slate-900'
                       : 'border-slate-700 opacity-60 hover:opacity-100'
                   }`}
+                  title={`Photo ${idx + 1}`}
                 >
                   <img
                     src={img}
@@ -261,31 +274,19 @@ export function VideoGradeModal({
             })}
           </div>
 
-          {/* Condition Notes / Quality Specification */}
+          {/* Quality Specification */}
           <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1.5">
             <div className="font-semibold text-white flex items-center justify-between">
-              <span>{currentClip?.label || bale.title} Specification:</span>
+              <span>Lot Quality Specification:</span>
               <span className="text-[10.5px] font-mono text-amber-400">
                 {bale.gradeBreakdown?.gradeA || 90}% Grade A Inspected
               </span>
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              {currentClip?.description || bale.shortDescription}
+              {bale.shortDescription}
             </p>
-            {currentClip?.conditionNotes && currentClip.conditionNotes.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-0.5">
-                {currentClip.conditionNotes.map((note, nIdx) => (
-                  <span
-                    key={nIdx}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300 border border-slate-700 font-medium"
-                  >
-                    <Check className="w-3 h-3 text-emerald-400" />
-                    {note}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
+
 
 
 

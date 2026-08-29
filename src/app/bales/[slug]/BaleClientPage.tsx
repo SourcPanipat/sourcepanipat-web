@@ -147,14 +147,14 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                     onClick={handleVideoToggle}
                   />
 
-                  {/* Top Left Badge */}
-                  <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none">
-                    <span className="bg-rose-800 text-white font-bold text-[10px] px-2 py-0.5 rounded flex items-center gap-1 shadow-xs uppercase tracking-wide">
+                  {/* Top Left Minimal Badge */}
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-none">
+                    <span className="bg-rose-600 text-white font-bold text-[10px] px-2 py-0.5 rounded flex items-center gap-1 shadow-xs uppercase tracking-wider">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      {videoClips[activeVideoIndex]?.label || 'Yard QC Video'}
+                      {videoClips.length > 1 ? `Video ${activeVideoIndex + 1}` : 'Godown Video'}
                     </span>
-                    <span className="bg-black/75 text-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-700">
-                      {videoClips[activeVideoIndex]?.grade || 'Grade A'} Inspection
+                    <span className="bg-black/75 text-slate-200 text-[10px] font-medium px-2 py-0.5 rounded border border-slate-700">
+                      30s Uncut
                     </span>
                   </div>
 
@@ -234,10 +234,10 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
               )}
             </div>
 
-            {/* Bottom Thumbnail Strip (Dynamic Based on Videos & Photos) */}
+            {/* Amazon-Style Visual Thumbnail Grid (No Long Text Titles) */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               
-              {/* Dynamic Video Thumbnails */}
+              {/* Video Visual Thumbnails */}
               {videoClips.map((clip, vIdx) => {
                 const isSelected = activeMediaTab === 'video' && activeVideoIndex === vIdx;
                 return (
@@ -248,19 +248,31 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                       setActiveVideoIndex(vIdx);
                       setIsPlaying(true);
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all shrink-0 border ${
+                    className={`relative w-14 sm:w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black flex flex-col items-center justify-center group ${
                       isSelected
-                        ? 'bg-slate-900 text-white border-slate-900 shadow-xs ring-2 ring-slate-900 ring-offset-1'
-                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                        ? 'border-amber-500 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1'
+                        : 'border-slate-300 opacity-80 hover:opacity-100'
                     }`}
+                    title={`Video ${vIdx + 1}`}
                   >
-                    <Play className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span>{clip.label || (videoClips.length > 1 ? `Video ${vIdx + 1}` : '30s Video')}</span>
+                    <img
+                      src={bale.thumbnailUrl}
+                      alt={`Video ${vIdx + 1}`}
+                      className="w-full h-full object-cover opacity-60"
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 group-hover:bg-black/10">
+                      <div className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-xs">
+                        <Play className="w-2.5 h-2.5 fill-current ml-0.5" />
+                      </div>
+                      <span className="text-[8px] font-black text-white uppercase tracking-wider mt-0.5 drop-shadow">
+                        VIDEO {videoClips.length > 1 ? vIdx + 1 : ''}
+                      </span>
+                    </div>
                   </button>
                 );
               })}
 
-              {/* Dynamic Photo Thumbnails */}
+              {/* Photo Visual Thumbnails */}
               {images.map((img, idx) => {
                 const isSelected = activeMediaTab === 'images' && activeImageIndex === idx;
                 return (
@@ -270,21 +282,23 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                       setActiveMediaTab('images');
                       setActiveImageIndex(idx);
                     }}
-                    className={`relative w-14 h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black ${
+                    className={`relative w-14 sm:w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black ${
                       isSelected
                         ? 'border-amber-500 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1'
                         : 'border-slate-300 opacity-70 hover:opacity-100'
                     }`}
+                    title={`Photo ${idx + 1}`}
                   >
                     <img
                       src={img}
-                      alt={`Thumb ${idx + 1}`}
+                      alt={`Photo ${idx + 1}`}
                       className="w-full h-full object-cover"
                     />
                   </button>
                 );
               })}
             </div>
+
 
 
             {/* Yard Quality Specification Grid */}
