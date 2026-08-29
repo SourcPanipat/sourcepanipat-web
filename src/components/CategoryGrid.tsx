@@ -113,17 +113,17 @@ export function CategoryGrid({
   
   const getIcon = (iconName: string) => {
     switch (iconName) {
-      case 'Layers': return <Layers className="w-5 h-5" />;
-      case 'Shirt': return <Shirt className="w-5 h-5" />;
-      case 'Scissors': return <Scissors className="w-5 h-5" />;
-      case 'Sparkles': return <Sparkles className="w-5 h-5" />;
-      case 'Building': return <Building className="w-5 h-5" />;
-      case 'Sun': return <Sun className="w-5 h-5" />;
-      case 'Heart': return <Heart className="w-5 h-5" />;
-      case 'Package': return <Package className="w-5 h-5" />;
-      case 'Flame': return <Flame className="w-5 h-5" />;
-      case 'Shield': return <Shield className="w-5 h-5" />;
-      default: return <Package className="w-5 h-5" />;
+      case 'Layers': return <Layers className="w-6 h-6 text-current" />;
+      case 'Shirt': return <Shirt className="w-6 h-6 text-current" />;
+      case 'Scissors': return <Scissors className="w-6 h-6 text-current" />;
+      case 'Sparkles': return <Sparkles className="w-6 h-6 text-current" />;
+      case 'Building': return <Building className="w-6 h-6 text-current" />;
+      case 'Sun': return <Sun className="w-6 h-6 text-current" />;
+      case 'Heart': return <Heart className="w-6 h-6 text-current" />;
+      case 'Package': return <Package className="w-6 h-6 text-current" />;
+      case 'Flame': return <Flame className="w-6 h-6 text-current" />;
+      case 'Shield': return <Shield className="w-6 h-6 text-current" />;
+      default: return <Package className="w-6 h-6 text-current" />;
     }
   };
 
@@ -132,13 +132,13 @@ export function CategoryGrid({
   );
 
   return (
-    <div className="w-full bg-white border-b border-slate-200 py-3 sm:py-4 shadow-xs">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-3">
+    <div className="w-full bg-white border-b border-slate-200 py-3.5 sm:py-4.5 shadow-2xs">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-3.5">
         
         {/* Category Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 uppercase tracking-wider">
-            <LayoutGrid className="w-3.5 h-3.5 text-slate-700" />
+          <div className="flex items-center gap-1.5 text-xs font-black text-slate-900 uppercase tracking-wider">
+            <LayoutGrid className="w-4 h-4 text-slate-800" />
             <span>Panipat Wholesale Categories</span>
           </div>
 
@@ -148,15 +148,15 @@ export function CategoryGrid({
                 onSelectCategory('all');
                 onSelectSubCategory?.('all');
               }}
-              className="text-xs text-slate-500 hover:text-slate-900 font-semibold"
+              className="text-xs text-amber-700 hover:text-amber-800 font-bold hover:underline"
             >
               Reset Filters (View All)
             </button>
           )}
         </div>
 
-        {/* Dynamic Category Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2 sm:gap-2.5">
+        {/* Dynamic Category Grid: Borderless circular badges with text below */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2 sm:gap-3 py-1">
           
           {/* Tile 0: All Bales */}
           <button
@@ -164,16 +164,20 @@ export function CategoryGrid({
               onSelectCategory('all');
               onSelectSubCategory?.('all');
             }}
-            className={`group p-2 sm:p-2.5 rounded-lg border text-center flex flex-col items-center justify-center gap-1.5 transition-all min-h-[86px] ${
-              selectedCategory === 'all'
-                ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
-                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:border-slate-300'
-            }`}
+            className="group flex flex-col items-center justify-start gap-2 text-center transition-all cursor-pointer focus:outline-none p-1"
           >
-            <div className={`p-2 rounded-full ${selectedCategory === 'all' ? 'bg-slate-800 text-amber-400' : 'bg-white text-slate-700 border border-slate-200 group-hover:border-slate-300'}`}>
-              <LayoutGrid className="w-4 h-4" />
+            <div className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 transform group-hover:scale-105 ${
+              selectedCategory === 'all'
+                ? 'bg-slate-900 text-amber-400 ring-3 ring-slate-900 ring-offset-2 shadow-md'
+                : 'bg-slate-100 text-slate-700 border border-slate-200/80 group-hover:bg-slate-200 group-hover:border-slate-300 group-hover:shadow-xs'
+            }`}>
+              <LayoutGrid className="w-6 h-6" />
             </div>
-            <span className="text-[10.5px] sm:text-[11px] font-semibold leading-tight text-center">
+            <span className={`text-[11px] sm:text-[11.5px] leading-tight text-center max-w-[88px] transition-colors ${
+              selectedCategory === 'all'
+                ? 'font-black text-slate-950'
+                : 'font-semibold text-slate-700 group-hover:text-slate-950'
+            }`}>
               All Lots
             </span>
           </button>
@@ -188,16 +192,12 @@ export function CategoryGrid({
                   onSelectCategory(cat.id);
                   onSelectSubCategory?.('all');
                 }}
-                className={`group p-2 sm:p-2.5 rounded-lg border text-center flex flex-col items-center justify-center gap-1.5 transition-all min-h-[86px] ${
-                  isSelected
-                    ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:border-slate-300'
-                }`}
+                className="group flex flex-col items-center justify-start gap-2 text-center transition-all cursor-pointer focus:outline-none p-1"
               >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden ${
+                <div className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 overflow-hidden transition-all duration-200 transform group-hover:scale-105 ${
                   isSelected 
-                    ? 'bg-slate-800 text-amber-400' 
-                    : 'bg-white text-slate-700 border border-slate-200 group-hover:border-slate-300'
+                    ? 'bg-slate-900 text-amber-400 ring-3 ring-slate-900 ring-offset-2 shadow-md' 
+                    : 'bg-slate-100 text-slate-700 border border-slate-200/80 group-hover:bg-slate-200 group-hover:border-slate-300 group-hover:shadow-xs'
                 }`}>
                   {cat.logoUrl ? (
                     <img
@@ -209,7 +209,11 @@ export function CategoryGrid({
                     getIcon(cat.iconName)
                   )}
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-semibold line-clamp-2 leading-tight text-center" title={cat.name}>
+                <span className={`text-[11px] sm:text-[11.5px] line-clamp-2 leading-tight text-center max-w-[88px] transition-colors ${
+                  isSelected
+                    ? 'font-black text-slate-950'
+                    : 'font-semibold text-slate-700 group-hover:text-slate-950'
+                }`} title={cat.name}>
                   {cat.name}
                 </span>
               </button>
