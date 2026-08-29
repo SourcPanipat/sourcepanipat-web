@@ -111,22 +111,16 @@ export function VideoGradeModal({
           </button>
         </div>
 
-        {/* 16:9 FIXED RATIO UNIFIED MEDIA PLAYER (Strict 16:9 Box - Never expands vertically) */}
-        <div className="relative aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+        {/* 16:9 FIXED RATIO UNIFIED MEDIA PLAYER (OLX Standard Solid Black Letterbox) */}
+        <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden select-none">
           
-          {/* Ambient blurred backdrop so vertical/square media blends seamlessly in 16:9 */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-25 scale-110 pointer-events-none transition-all duration-300"
-            style={{ backgroundImage: `url(${activeMediaMode === 'video' ? bale.thumbnailUrl : currentImage})` }}
-          />
-
           {activeMediaMode === 'video' ? (
-            <div className="relative w-full h-full flex items-center justify-center z-10 group">
+            <div className="relative w-full h-full flex items-center justify-center bg-black group">
               <video
                 ref={videoRef}
                 src={currentClip.videoUrl}
                 poster={bale.thumbnailUrl}
-                className="w-full h-full object-contain cursor-pointer"
+                className="max-w-full max-h-full object-contain mx-auto cursor-pointer"
                 autoPlay
                 playsInline
                 muted={isMuted}
@@ -138,11 +132,11 @@ export function VideoGradeModal({
 
               {/* Badges */}
               <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none">
-                <span className="px-2 py-0.5 rounded bg-rose-800/90 text-white text-[10.5px] font-bold flex items-center gap-1 shadow-xs uppercase tracking-wide">
+                <span className="px-2 py-0.5 rounded bg-rose-800 text-white text-[10.5px] font-bold flex items-center gap-1 shadow-xs uppercase tracking-wide">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                   Yard QC Video
                 </span>
-                <span className="bg-slate-900/85 backdrop-blur-xs text-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-700">
+                <span className="bg-black/80 text-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-700">
                   {currentClip.label} (30s)
                 </span>
               </div>
@@ -151,7 +145,7 @@ export function VideoGradeModal({
               {!isPlaying && (
                 <button
                   onClick={togglePlay}
-                  className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-slate-900/85 text-white flex items-center justify-center backdrop-blur-xs hover:scale-105 transition-transform shadow-lg"
+                  className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-black/80 text-white flex items-center justify-center hover:scale-105 transition-transform shadow-lg border border-white/20"
                 >
                   <Play className="w-6 h-6 ml-0.5 text-amber-400 fill-amber-400" />
                 </button>
@@ -161,25 +155,25 @@ export function VideoGradeModal({
               <div className="absolute bottom-3 inset-x-3 flex items-center justify-between pointer-events-auto">
                 <button
                   onClick={togglePlay}
-                  className="p-2 rounded-full bg-black/75 hover:bg-black text-white transition-colors border border-slate-700 shadow-xs"
+                  className="p-2 rounded-full bg-black/75 hover:bg-black text-white transition-colors border border-white/20 shadow-xs"
                 >
                   {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
                 </button>
 
                 <button
                   onClick={toggleMute}
-                  className="p-2 rounded-full bg-black/75 hover:bg-black text-white transition-colors border border-slate-700 shadow-xs"
+                  className="p-2 rounded-full bg-black/75 hover:bg-black text-white transition-colors border border-white/20 shadow-xs"
                 >
                   {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="relative w-full h-full flex items-center justify-center z-10">
+            <div className="relative w-full h-full flex items-center justify-center bg-black">
               <img
                 src={currentImage}
                 alt={bale.title}
-                className="w-full h-full object-contain"
+                className="max-w-full max-h-full object-contain mx-auto select-none"
               />
 
               {/* Image Navigation Arrows */}
@@ -187,25 +181,25 @@ export function VideoGradeModal({
                 <>
                   <button
                     onClick={handlePrevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-black text-white transition-colors border border-slate-700 shadow-xs"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-all border border-white/20 shadow-lg"
                     title="Previous Image"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
 
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/70 hover:bg-black text-white transition-colors border border-slate-700 shadow-xs"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition-all border border-white/20 shadow-lg"
                     title="Next Image"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-5 h-5" />
                   </button>
                 </>
               )}
 
               {/* Photo Index Badge */}
-              <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-mono px-2.5 py-1 rounded-full border border-slate-700">
-                Photo {activeImageIndex + 1} of {galleryImages.length}
+              <div className="absolute bottom-3 right-3 bg-black/80 text-white text-[11px] font-mono px-2.5 py-1 rounded-full border border-white/20 shadow-xs">
+                {activeImageIndex + 1} / {galleryImages.length}
               </div>
             </div>
           )}
