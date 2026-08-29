@@ -49,19 +49,22 @@ export function ProductCard({ bale, onPreviewVideo }: ProductCardProps) {
           )}
         </div>
 
-        {/* Minimal 30s Video Button (Bottom Right) */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onPreviewVideo(bale);
-          }}
-          className="absolute bottom-1.5 right-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-900/85 hover:bg-slate-900 text-white text-[10px] font-medium backdrop-blur-xs transition-colors shadow-xs active:scale-95"
-        >
-          <Play className="w-2 h-2 fill-current" />
-          <span>30s Godown Video</span>
-        </button>
+        {/* Minimal 30s Video Button (Bottom Right) - Only shown if listing has videoClips */}
+        {bale.videoClips && bale.videoClips.length > 0 && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onPreviewVideo(bale);
+            }}
+            className="absolute bottom-1.5 right-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-900/85 hover:bg-slate-900 text-white text-[10px] font-medium backdrop-blur-xs transition-colors shadow-xs active:scale-95"
+          >
+            <Play className="w-2 h-2 fill-amber-400 text-amber-400" />
+            <span>{bale.videoClips.length > 1 ? `${bale.videoClips.length} Videos` : '30s Video'}</span>
+          </button>
+        )}
       </div>
+
 
       {/* 2. Compact 4-Line Card Body */}
       <div className="p-2 sm:p-2.5 flex-1 flex flex-col justify-between gap-1">

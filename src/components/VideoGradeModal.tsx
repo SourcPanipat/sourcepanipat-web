@@ -33,7 +33,13 @@ export function VideoGradeModal({
   initialTab = 'video',
   initialImageIndex = 0
 }: VideoGradeModalProps) {
-  const [activeMediaMode, setActiveMediaMode] = useState<'video' | 'gallery'>(initialTab);
+  const videoClips = (bale?.videoClips && bale.videoClips.length > 0) ? bale.videoClips : [];
+  const hasVideos = videoClips.length > 0;
+  const galleryImages = (bale?.galleryImages && bale.galleryImages.length > 0)
+    ? bale.galleryImages 
+    : (bale?.thumbnailUrl ? [bale.thumbnailUrl] : []);
+
+  const [activeMediaMode, setActiveMediaMode] = useState<'video' | 'gallery'>(hasVideos ? initialTab : 'gallery');
   const [activeClipIndex, setActiveClipIndex] = useState<number>(0);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(initialImageIndex);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
@@ -41,26 +47,22 @@ export function VideoGradeModal({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    setActiveMediaMode(initialTab);
+    setActiveMediaMode(hasVideos ? initialTab : 'gallery');
     setActiveClipIndex(0);
     setActiveImageIndex(initialImageIndex);
     setIsPlaying(true);
-  }, [bale, initialTab, initialImageIndex]);
+  }, [bale, initialTab, initialImageIndex, hasVideos]);
 
   useEffect(() => {
-    if (activeMediaMode === 'video' && videoRef.current) {
+    if (activeMediaMode === 'video' && hasVideos && videoRef.current) {
       videoRef.current.currentTime = 0;
       videoRef.current.play().catch(() => setIsPlaying(false));
     }
-  }, [activeClipIndex, activeMediaMode]);
+  }, [activeClipIndex, activeMediaMode, hasVideos]);
 
   if (!bale) return null;
 
-  const currentClip: VideoGradeClip = bale.videoClips[activeClipIndex] || bale.videoClips[0];
-  const galleryImages = bale.galleryImages && bale.galleryImages.length > 0 
-    ? bale.galleryImages 
-    : [bale.thumbnailUrl];
-
+  const currentClip: VideoGradeClip | undefined = hasVideos ? (videoClips[activeClipIndex] || videoClips[0]) : undefined;
   const currentImage = galleryImages[activeImageIndex] || bale.thumbnailUrl;
 
   const togglePlay = () => {
@@ -96,7 +98,7 @@ export function VideoGradeModal({
         <div className="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2 truncate">
             <span className="font-mono text-xs font-bold text-slate-900 bg-amber-400 px-2 py-0.5 rounded">
-              {bale.seller.maskedCode}
+              {bale.seller?.maskedCode || '#PNP-001'}
             </span>
             <h3 className="text-xs sm:text-sm font-semibold text-white truncate">
               {bale.title}
@@ -114,10 +116,11 @@ export function VideoGradeModal({
         {/* 16:9 FIXED RATIO UNIFIED MEDIA PLAYER (OLX Standard Solid Black Letterbox) */}
         <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden select-none">
           
-          {activeMediaMode === 'video' ? (
+          {activeMediaMode === 'video' && hasVideos && currentClip ? (
             <div className="relative w-full h-full flex items-center justify-center bg-black group">
               <video
                 ref={videoRef}
+                key={currentClip.videoUrl}
                 src={currentClip.videoUrl}
                 poster={bale.thumbnailUrl}
                 className="max-w-full max-h-full object-contain mx-auto cursor-pointer"
@@ -137,7 +140,7 @@ export function VideoGradeModal({
                   Yard QC Video
                 </span>
                 <span className="bg-black/80 text-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-700">
-                  {currentClip.label} (30s)
+                  {currentClip.label || 'Inspection Video'} (30s)
                 </span>
               </div>
 
@@ -210,12 +213,12 @@ export function VideoGradeModal({
           
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             
-            {/* 30s Video Clips */}
-            {bale.videoClips.map((clip, idx) => {
+            {/* Dynamic 30s Video Clips */}
+            {videoClips.map((clip, idx) => {
               const isSelected = activeMediaMode === 'video' && activeClipIndex === idx;
               return (
                 <button
-                  key={clip.id || idx}
+                  key={clip.id || `clip-${idx}`}
                   onClick={() => {
                     setActiveMediaMode('video');
                     setActiveClipIndex(idx);
@@ -227,17 +230,17 @@ export function VideoGradeModal({
                   }`}
                 >
                   <Film className="w-3.5 h-3.5" />
-                  <span>30s Video {idx === 0 ? '(Audit)' : `(Clip ${idx + 1})`}</span>
+                  <span>{clip.label || (videoClips.length > 1 ? `Video ${idx + 1}` : '30s Video')}</span>
                 </button>
               );
             })}
 
-            {/* Gallery Images */}
+            {/* Dynamic Gallery Images */}
             {galleryImages.map((img, idx) => {
               const isSelected = activeMediaMode === 'gallery' && activeImageIndex === idx;
               return (
                 <button
-                  key={idx}
+                  key={`thumb-${idx}`}
                   onClick={() => {
                     setActiveMediaMode('gallery');
                     setActiveImageIndex(idx);
@@ -258,14 +261,18 @@ export function VideoGradeModal({
             })}
           </div>
 
-          {/* Condition Notes */}
+          {/* Condition Notes / Quality Specification */}
           <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1.5">
             <div className="font-semibold text-white flex items-center justify-between">
-              <span>{currentClip.label} Specification:</span>
-              <span className="text-[10.5px] font-mono text-amber-400">92% Grade A Inspected</span>
+              <span>{currentClip?.label || bale.title} Specification:</span>
+              <span className="text-[10.5px] font-mono text-amber-400">
+                {bale.gradeBreakdown?.gradeA || 90}% Grade A Inspected
+              </span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">{currentClip.description}</p>
-            {currentClip.conditionNotes && currentClip.conditionNotes.length > 0 && (
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              {currentClip?.description || bale.shortDescription}
+            </p>
+            {currentClip?.conditionNotes && currentClip.conditionNotes.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {currentClip.conditionNotes.map((note, nIdx) => (
                   <span
@@ -279,6 +286,7 @@ export function VideoGradeModal({
               </div>
             )}
           </div>
+
 
 
           {/* Pricing & Escrow Action */}

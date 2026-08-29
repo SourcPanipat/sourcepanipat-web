@@ -48,15 +48,19 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [selectedPreviewBale, setSelectedPreviewBale] = useState<BaleListing | null>(null);
 
-  // Video Player Control State
+  const videoClips = (bale.videoClips && bale.videoClips.length > 0) ? bale.videoClips : [];
+  const hasVideos = videoClips.length > 0;
+  const images = (bale.galleryImages && bale.galleryImages.length > 0) ? bale.galleryImages : [bale.thumbnailUrl];
+
+  // Video Player & Media Tab Control State
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [isMuted, setIsMuted] = useState<boolean>(true);
-  const [activeMediaTab, setActiveMediaTab] = useState<'video' | 'images'>('video');
+  const [activeMediaTab, setActiveMediaTab] = useState<'video' | 'images'>(hasVideos ? 'video' : 'images');
+  const [activeVideoIndex, setActiveVideoIndex] = useState<number>(0);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
-  const images = bale.galleryImages && bale.galleryImages.length > 0 ? bale.galleryImages : [bale.thumbnailUrl];
-  const videoUrl = bale.videoClips && bale.videoClips[0] ? bale.videoClips[0].videoUrl : 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+  const currentVideoUrl = hasVideos && videoClips[activeVideoIndex] ? videoClips[activeVideoIndex].videoUrl : '';
 
   // Pricing calculations
   const totalBalesWeight = bale.weightKg * baleQuantity;
@@ -128,11 +132,12 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
             {/* Main 16:9 Fixed Viewer with Solid Black Letterbox Space (OLX Standard) */}
             <div className="bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-md relative aspect-video w-full flex items-center justify-center border border-slate-800 group select-none">
               
-              {activeMediaTab === 'video' ? (
+              {activeMediaTab === 'video' && hasVideos ? (
                 <div className="relative w-full h-full flex items-center justify-center bg-black">
                   <video
                     ref={videoRef}
-                    src={videoUrl}
+                    key={currentVideoUrl}
+                    src={currentVideoUrl}
                     poster={bale.thumbnailUrl}
                     autoPlay
                     loop
@@ -146,10 +151,10 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                   <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none">
                     <span className="bg-rose-800 text-white font-bold text-[10px] px-2 py-0.5 rounded flex items-center gap-1 shadow-xs uppercase tracking-wide">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      Yard QC Video
+                      {videoClips[activeVideoIndex]?.label || 'Yard QC Video'}
                     </span>
                     <span className="bg-black/75 text-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-700">
-                      Uncut 30s Inspection
+                      {videoClips[activeVideoIndex]?.grade || 'Grade A'} Inspection
                     </span>
                   </div>
 
@@ -229,44 +234,58 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
               )}
             </div>
 
-            {/* Bottom Thumbnail Strip (OLX Style) */}
+            {/* Bottom Thumbnail Strip (Dynamic Based on Videos & Photos) */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               
-              {/* Video Thumb */}
-              <button
-                onClick={() => setActiveMediaTab('video')}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all shrink-0 border ${
-                  activeMediaTab === 'video'
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs ring-2 ring-slate-900 ring-offset-1'
-                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
-                }`}
-              >
-                <Play className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                <span>30s Video</span>
-              </button>
+              {/* Dynamic Video Thumbnails */}
+              {videoClips.map((clip, vIdx) => {
+                const isSelected = activeMediaTab === 'video' && activeVideoIndex === vIdx;
+                return (
+                  <button
+                    key={`clip-${clip.id || vIdx}`}
+                    onClick={() => {
+                      setActiveMediaTab('video');
+                      setActiveVideoIndex(vIdx);
+                      setIsPlaying(true);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all shrink-0 border ${
+                      isSelected
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-xs ring-2 ring-slate-900 ring-offset-1'
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Play className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                    <span>{clip.label || (videoClips.length > 1 ? `Video ${vIdx + 1}` : '30s Video')}</span>
+                  </button>
+                );
+              })}
 
-              {/* Photo Thumbs */}
-              {images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setActiveMediaTab('images');
-                    setActiveImageIndex(idx);
-                  }}
-                  className={`relative w-14 h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black ${
-                    activeMediaTab === 'images' && activeImageIndex === idx
-                      ? 'border-amber-500 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1'
-                      : 'border-slate-300 opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt={`Thumb ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
+              {/* Dynamic Photo Thumbnails */}
+              {images.map((img, idx) => {
+                const isSelected = activeMediaTab === 'images' && activeImageIndex === idx;
+                return (
+                  <button
+                    key={`photo-${idx}`}
+                    onClick={() => {
+                      setActiveMediaTab('images');
+                      setActiveImageIndex(idx);
+                    }}
+                    className={`relative w-14 h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black ${
+                      isSelected
+                        ? 'border-amber-500 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1'
+                        : 'border-slate-300 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`Thumb ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                );
+              })}
             </div>
+
 
             {/* Yard Quality Specification Grid */}
             <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-4">
