@@ -7,8 +7,10 @@ import { notFound } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { VideoGradeModal } from '@/components/VideoGradeModal';
 import { EscrowCheckoutDrawer } from '@/components/EscrowCheckoutDrawer';
+import { BuyerAuthModal } from '@/components/auth/BuyerAuthModal';
 import { Footer } from '@/components/Footer';
 import { SquareLoader } from '@/components/SquareLoader';
+import { useListingGate } from '@/hooks/useListingGate';
 import { MOCK_BALES, getBaleBySlug } from '@/lib/mock-catalog';
 import { BuyMode, BaleListing, BuyerUser } from '@/types';
 import { formatINR } from '@/lib/utils';
@@ -31,7 +33,6 @@ import {
   Sparkles
 } from 'lucide-react';
 
-
 interface BaleClientPageProps {
   slug: string;
 }
@@ -39,6 +40,16 @@ interface BaleClientPageProps {
 export function BaleClientPage({ slug }: BaleClientPageProps) {
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
   const bale = getBaleBySlug(slug) || MOCK_BALES[0];
+
+  // 20-Listing Guest Gatekeeper
+  const {
+    isGated,
+    viewedCount,
+    totalLimit,
+    isAuthModalOpen: isGateModalOpen,
+    setIsAuthModalOpen: setIsGateModalOpen,
+    unlockGate,
+  } = useListingGate(bale?.id);
 
   useEffect(() => {
     // Dynamic smooth transition loader (650ms)
@@ -59,6 +70,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   const [baleQuantity, setBaleQuantity] = useState<number>(1);
   const [curatedPieces, setCuratedPieces] = useState<number>(bale.curatedMoq || 25);
   const [includeShield, setIncludeShield] = useState<boolean>(true);
+
 
 
   // Modals & Auth Gate State
@@ -363,13 +375,14 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                   <div className="font-bold flex items-center gap-1.5 text-amber-950">
                     <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
                     <span>SourcePanipat Quality & Tare Weight Guarantee</span>
+                  </div>
                   <p className="leading-snug">
                     Bale tare weight is audited by independent Panipat field coordinators before transport dispatch. If delivered weight deviates by &gt;1.5%, differential amount is auto-refunded to buyer escrow wallet.
                   </p>
-
                 </div>
               </div>
             </div>
+
 
             {/* Key Lot Attributes & Composition */}
             <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-3">
@@ -694,7 +707,21 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
         />
       )}
 
+      {/* 20-Listing Guest Gatekeeper Modal */}
+      {isGateModalOpen && (
+        <BuyerAuthModal
+          isOpen={isGateModalOpen}
+          isGateTriggered={isGated}
+          initialMode="signup"
+          onClose={() => setIsGateModalOpen(false)}
+          onSuccess={(user) => {
+            unlockGate();
+          }}
+        />
+      )}
+
       <Footer />
     </div>
   );
 }
+

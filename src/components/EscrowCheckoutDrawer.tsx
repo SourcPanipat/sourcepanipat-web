@@ -152,6 +152,25 @@ export function EscrowCheckoutDrawer({
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('sp_recent_order', JSON.stringify(orderRecord));
+        // Auto-sync buyer profile details for 1-click future checkouts
+        try {
+          const existingBuyerStr = localStorage.getItem('sp_buyer_user');
+          const buyerProfile = existingBuyerStr ? JSON.parse(existingBuyerStr) : {};
+          const updatedProfile = {
+            ...buyerProfile,
+            id: buyerProfile.id || `usr-${Date.now().toString().slice(-6)}`,
+            contactName: buyerName,
+            phone: buyerPhone,
+            businessName,
+            gstin,
+            city: deliveryCity,
+            state: deliveryState,
+            deliveryAddress,
+          };
+          localStorage.setItem('sp_buyer_user', JSON.stringify(updatedProfile));
+        } catch (syncErr) {
+          console.warn('Address auto-sync note:', syncErr);
+        }
       }
 
       setCompletedOrder({
@@ -205,7 +224,25 @@ export function EscrowCheckoutDrawer({
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('sp_recent_order', JSON.stringify(fallbackRecord));
+        // Auto-sync fallback profile
+        try {
+          const existingBuyerStr = localStorage.getItem('sp_buyer_user');
+          const buyerProfile = existingBuyerStr ? JSON.parse(existingBuyerStr) : {};
+          const updatedProfile = {
+            ...buyerProfile,
+            id: buyerProfile.id || `usr-${Date.now().toString().slice(-6)}`,
+            contactName: buyerName,
+            phone: buyerPhone,
+            businessName,
+            gstin,
+            city: deliveryCity,
+            state: deliveryState,
+            deliveryAddress,
+          };
+          localStorage.setItem('sp_buyer_user', JSON.stringify(updatedProfile));
+        } catch (syncErr) {}
       }
+
 
       setCompletedOrder({
         orderId,
