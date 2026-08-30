@@ -8,6 +8,7 @@ import { SellerFooter } from '@/components/seller/SellerFooter';
 import { GodownZone, SellerProfile } from '@/types';
 import { supabase } from '@/lib/supabase-client';
 import { registerSellerInDb } from '@/lib/supabase-db';
+import { R2FileUploader } from '@/components/R2FileUploader';
 
 import { 
   Building2, 
@@ -32,6 +33,8 @@ export default function SellerRegisterPage() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [logoFileName, setLogoFileName] = useState('');
   const [godownZone, setGodownZone] = useState<GodownZone>('Sanoli Road Godown Hub');
   const [yardAddress, setYardAddress] = useState('');
 
@@ -48,7 +51,9 @@ export default function SellerRegisterPage() {
   const [bankIfscCode, setBankIfscCode] = useState('');
   const [accountHolderName, setAccountHolderName] = useState('');
   const [bankName, setBankName] = useState('');
+  const [gstDocUrl, setGstDocUrl] = useState('');
   const [gstDocName, setGstDocName] = useState('');
+  const [yardPhotoUrl, setYardPhotoUrl] = useState('');
   const [yardPhotoName, setYardPhotoName] = useState('');
 
   const toggleInventoryType = (type: string) => {
@@ -59,7 +64,6 @@ export default function SellerRegisterPage() {
     }
   };
   const toggleInventory = toggleInventoryType;
-
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,14 +90,15 @@ export default function SellerRegisterPage() {
       godownZone,
       yardAddress,
       primaryInventoryTypes: inventoryTypes,
+      logoUrl: logoUrl || undefined,
       gstin: hasGstin ? gstin : undefined,
       isGstinRegistered: hasGstin,
       bankAccountNumber,
       bankIfscCode,
       accountHolderName: accountHolderName || fullName,
       bankName,
-      gstDocUrl: gstDocName ? `https://pub-sourcepanipat.r2.dev/kyc/${gstDocName}` : undefined,
-      yardPhotoUrl: yardPhotoName ? `https://pub-sourcepanipat.r2.dev/kyc/${yardPhotoName}` : undefined,
+      gstDocUrl: gstDocUrl || undefined,
+      yardPhotoUrl: yardPhotoUrl || undefined,
       verificationStatus: 'pending_approval',
       accountStatus: 'active',
       rating: 5.0,
@@ -105,6 +110,7 @@ export default function SellerRegisterPage() {
       repeatBuyerRate: 100,
       createdAt: new Date().toISOString(),
     };
+
 
     try {
       // 1. Try Supabase Auth Sign Up
@@ -327,6 +333,31 @@ export default function SellerRegisterPage() {
                   />
                 </div>
 
+                {/* Godown Firm Logo Upload */}
+                <div>
+                  <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                    Godown Firm Brand / Yard Logo (Optional)
+                  </label>
+                  <R2FileUploader
+                    folder="logos"
+                    accept="image/*"
+                    maxSizeMB={5}
+                    label="Upload Godown / Firm Logo"
+                    sublabel="PNG, JPG, WEBP up to 5MB (Displayed on your B2B seller profile)"
+                    currentUrl={logoUrl}
+                    currentFileName={logoFileName}
+                    onUploadComplete={(url, name) => {
+                      setLogoUrl(url);
+                      setLogoFileName(name);
+                    }}
+                    onRemove={() => {
+                      setLogoUrl('');
+                      setLogoFileName('');
+                    }}
+                  />
+                </div>
+
+
                 <div>
                   <label className="text-[11px] font-medium text-slate-700 block mb-1">
                     Select Panipat Sourcing Hub *
@@ -514,39 +545,56 @@ export default function SellerRegisterPage() {
                 {/* KYC Document Uploads */}
                 <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   
-                  {/* Doc 1 */}
-                  <div className="p-3.5 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 text-center space-y-1.5">
-                    <Upload className="w-5 h-5 text-slate-500 mx-auto" />
-                    <div className="font-bold text-slate-800 text-xs">
-                      {gstDocName || 'Upload GST / Trade License'}
-                    </div>
-                    <p className="text-[10px] text-slate-500">PDF, JPG up to 5MB (R2 Secured)</p>
-                    <button
-                      type="button"
-                      onClick={() => setGstDocName('gst-certificate-panipat.pdf')}
-                      className="px-2.5 py-1 rounded bg-white text-slate-800 text-[10.5px] font-semibold border border-slate-300"
-                    >
-                      {gstDocName ? '✓ Attached' : 'Select Document'}
-                    </button>
+                  {/* Doc 1: GST / Trade License */}
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                      GST Registration Certificate / Trade License
+                    </label>
+                    <R2FileUploader
+                      folder="kyc"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      maxSizeMB={5}
+                      label="Upload GST Certificate"
+                      sublabel="PDF, JPG up to 5MB (Cloudflare R2 Encrypted)"
+                      currentUrl={gstDocUrl}
+                      currentFileName={gstDocName}
+                      onUploadComplete={(url, name) => {
+                        setGstDocUrl(url);
+                        setGstDocName(name);
+                      }}
+                      onRemove={() => {
+                        setGstDocUrl('');
+                        setGstDocName('');
+                      }}
+                    />
                   </div>
 
-                  {/* Doc 2 */}
-                  <div className="p-3.5 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 text-center space-y-1.5">
-                    <Upload className="w-5 h-5 text-slate-500 mx-auto" />
-                    <div className="font-bold text-slate-800 text-xs">
-                      {yardPhotoName || 'Upload Yard / Godown Photo'}
-                    </div>
-                    <p className="text-[10px] text-slate-500">Front signboard or storage bay</p>
-                    <button
-                      type="button"
-                      onClick={() => setYardPhotoName('sanoli-godown-front.jpg')}
-                      className="px-2.5 py-1 rounded bg-white text-slate-800 text-[10.5px] font-semibold border border-slate-300"
-                    >
-                      {yardPhotoName ? '✓ Attached' : 'Select Photo'}
-                    </button>
+                  {/* Doc 2: Yard / Godown Photo */}
+                  <div>
+                    <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                      Yard Signboard / Godown Front Photo
+                    </label>
+                    <R2FileUploader
+                      folder="kyc"
+                      accept="image/*"
+                      maxSizeMB={10}
+                      label="Upload Godown Photo"
+                      sublabel="Front signboard or storage bay (JPG, PNG up to 10MB)"
+                      currentUrl={yardPhotoUrl}
+                      currentFileName={yardPhotoName}
+                      onUploadComplete={(url, name) => {
+                        setYardPhotoUrl(url);
+                        setYardPhotoName(name);
+                      }}
+                      onRemove={() => {
+                        setYardPhotoUrl('');
+                        setYardPhotoName('');
+                      }}
+                    />
                   </div>
 
                 </div>
+
 
               </div>
 

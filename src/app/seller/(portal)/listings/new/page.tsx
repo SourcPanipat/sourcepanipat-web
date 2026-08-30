@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SourcingMode, BaleListingItem } from '@/types';
 import { createListingInDb } from '@/lib/supabase-db';
+import { R2FileUploader } from '@/components/R2FileUploader';
 
 import { 
   PlusCircle, 
@@ -42,16 +43,18 @@ export default function NewListingPage() {
   const [targetGender, setTargetGender] = useState('Unisex');
   const [primaryFabric, setPrimaryFabric] = useState('Heavy Down & Nylon');
 
-
   // Quality Grades
   const [gradeA, setGradeA] = useState<number>(85);
   const [gradeB, setGradeB] = useState<number>(12);
   const [gradeC, setGradeC] = useState<number>(3);
 
-  // Media
-  const [video1Uploaded, setVideo1Uploaded] = useState(true);
-  const [video2Uploaded, setVideo2Uploaded] = useState(true);
-  const [photosUploaded, setPhotosUploaded] = useState(2);
+  // Media State (Cloudflare R2 Direct Uploads)
+  const [video1Url, setVideo1Url] = useState('');
+  const [video1Name, setVideo1Name] = useState('');
+  const [video2Url, setVideo2Url] = useState('');
+  const [video2Name, setVideo2Name] = useState('');
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+
 
   const categories = [
     {
@@ -120,6 +123,46 @@ export default function NewListingPage() {
 
     const cleanSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + `-${Date.now().toString().slice(-4)}`;
 
+    const finalPhotos = photoUrls.length > 0 ? photoUrls : [
+      'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80',
+    ];
+
+    const finalVideos: any[] = [];
+    if (video1Url) {
+      finalVideos.push({
+        id: 'v1',
+        type: 'opening_inspection',
+        grade: 'Grade A',
+        videoUrl: video1Url,
+        durationSeconds: 30,
+        label: '30s Raw Opening Inspection',
+        description: 'Live unboxing sample inspection.',
+      });
+    }
+    if (video2Url) {
+      finalVideos.push({
+        id: 'v2',
+        type: 'stack_inspection',
+        grade: 'Grade A/B',
+        videoUrl: video2Url,
+        durationSeconds: 30,
+        label: '30s Godown Stack Inspection',
+        description: 'Walk-through of storage pallet and steel strapping.',
+      });
+    }
+    if (finalVideos.length === 0) {
+      finalVideos.push({
+        id: 'v1',
+        type: 'opening_inspection',
+        grade: 'Grade A',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        durationSeconds: 30,
+        label: '30s Raw Opening Inspection',
+        description: 'Live unboxing sample inspection.',
+      });
+    }
+
     const newLot: BaleListingItem = {
       id: `bale-${Date.now().toString().slice(-6)}`,
       slug: cleanSlug,
@@ -132,11 +175,8 @@ export default function NewListingPage() {
       sourcingMode,
       originCountry,
       originFlag: 'KR',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80',
-      galleryImages: [
-        'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80',
-      ],
+      thumbnailUrl: finalPhotos[0],
+      galleryImages: finalPhotos,
       weightKg,
       estimatedPieceCount: estimatedPieces,
       sealedBalePrice: sealedPrice,
@@ -145,21 +185,8 @@ export default function NewListingPage() {
       gradeA,
       gradeB,
       gradeC,
-      videos: [
-        {
-          id: 'v1',
-          type: 'opening_inspection',
-          grade: 'Grade A',
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-          durationSeconds: 30,
-          label: '30s Raw Opening Inspection',
-          description: 'Live unboxing sample inspection.',
-        }
-      ],
-      photos: [
-        'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80',
-      ],
+      videos: finalVideos,
+      photos: finalPhotos,
       godownBatchId: 'BATCH-SANOLI-2026-W09',
       qcVerified: true,
       inStockCount,
@@ -171,6 +198,7 @@ export default function NewListingPage() {
       status: 'pending_approval', // Staging approval required!
       createdAt: new Date().toISOString(),
     };
+
 
     try {
       await createListingInDb(newLot);
@@ -565,78 +593,111 @@ export default function NewListingPage() {
               <Video className="w-4 h-4 text-slate-700" />
               <span>3. 30s Godown Videos (Up to 2) & High-Res Photos</span>
             </div>
-            <span className="text-[10.5px] text-slate-500 font-normal">Cloudflare R2 Direct Upload</span>
+            <span className="text-[10.5px] text-emerald-700 font-semibold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+              Cloudflare R2 Direct Upload Active
+            </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             
-            {/* Video 1 */}
-            <div className="p-3.5 rounded-lg border border-slate-300 bg-slate-50 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <div className="font-bold text-slate-900 flex items-center gap-1">
-                  <Film className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Video 1: 30s Opening Audit</span>
-                </div>
-                {video1Uploaded && <span className="text-[10px] font-bold text-emerald-700">✓ Attached</span>}
-              </div>
-              <p className="text-[10.5px] text-slate-500">Live unboxing sample inspection clip showing zipper & lining.</p>
-              <button
-                type="button"
-                onClick={() => setVideo1Uploaded(true)}
-                className="px-2.5 py-1 rounded bg-white text-slate-800 text-xs font-semibold border border-slate-300 hover:bg-slate-100"
-              >
-                {video1Uploaded ? 'Replace 30s Video' : '+ Select 30s Video'}
-              </button>
+            {/* Video 1: 30s Opening Inspection */}
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                Video 1: 30s Raw Opening Inspection (Auto-Trimmed)
+              </label>
+              <R2FileUploader
+                folder="lot-videos"
+                accept="video/*"
+                maxSizeMB={50}
+                maxDurationSec={30}
+                label="Upload 30s Opening Video"
+                sublabel="MP4, MOV, WEBM up to 50MB (Auto-trimmed to 30s preview clip)"
+                currentUrl={video1Url}
+                currentFileName={video1Name}
+                onUploadComplete={(url, name) => {
+                  setVideo1Url(url);
+                  setVideo1Name(name);
+                }}
+                onRemove={() => {
+                  setVideo1Url('');
+                  setVideo1Name('');
+                }}
+              />
             </div>
 
-            {/* Video 2 */}
-            <div className="p-3.5 rounded-lg border border-slate-300 bg-slate-50 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <div className="font-bold text-slate-900 flex items-center gap-1">
-                  <Film className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Video 2: 30s Godown Stack</span>
-                </div>
-                {video2Uploaded && <span className="text-[10px] font-bold text-emerald-700">✓ Attached</span>}
-              </div>
-              <p className="text-[10.5px] text-slate-500">Walk-through of storage pallet and steel strapping.</p>
-              <button
-                type="button"
-                onClick={() => setVideo2Uploaded(true)}
-                className="px-2.5 py-1 rounded bg-white text-slate-800 text-xs font-semibold border border-slate-300 hover:bg-slate-100"
-              >
-                {video2Uploaded ? 'Replace 30s Video' : '+ Select 30s Video'}
-              </button>
+            {/* Video 2: 30s Stack Inspection */}
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                Video 2: 30s Godown Stack Walk-through (Auto-Trimmed)
+              </label>
+              <R2FileUploader
+                folder="lot-videos"
+                accept="video/*"
+                maxSizeMB={50}
+                maxDurationSec={30}
+                label="Upload 30s Stack Video"
+                sublabel="MP4, MOV, WEBM up to 50MB (Storage pallet, steel strapping, lot overview)"
+                currentUrl={video2Url}
+                currentFileName={video2Name}
+                onUploadComplete={(url, name) => {
+                  setVideo2Url(url);
+                  setVideo2Name(name);
+                }}
+                onRemove={() => {
+                  setVideo2Url('');
+                  setVideo2Name('');
+                }}
+              />
             </div>
 
           </div>
 
-          {/* Photos */}
+          {/* 4 High-Res Photos Grid */}
           <div className="p-3.5 rounded-lg border border-slate-300 bg-slate-50 space-y-2">
             <div className="flex items-center justify-between">
               <div className="font-bold text-slate-900 flex items-center gap-1">
                 <Camera className="w-3.5 h-3.5 text-slate-600" />
-                <span>High-Res Lot Photos ({photosUploaded}/4 Attached)</span>
+                <span>High-Res Lot Photos ({photoUrls.filter(Boolean).length}/4 Uploaded to R2)</span>
               </div>
-              <span className="text-[10px] text-slate-500">Max 4 Photos</span>
+              <span className="text-[10px] text-slate-500">First photo will be primary thumbnail</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-12 h-12 rounded bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-[10px] text-slate-600">
-                Photo 1
-              </div>
-              <div className="w-12 h-12 rounded bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-[10px] text-slate-600">
-                Photo 2
-              </div>
-              <button
-                type="button"
-                onClick={() => setPhotosUploaded(Math.min(4, photosUploaded + 1))}
-                className="w-12 h-12 rounded border-2 border-dashed border-slate-300 bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs"
-              >
-                +
-              </button>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {[0, 1, 2, 3].map((slotIdx) => (
+                <div key={slotIdx} className="space-y-1">
+                  <span className="text-[10px] font-semibold text-slate-600 block">
+                    {slotIdx === 0 ? 'Primary Photo *' : `Photo ${slotIdx + 1}`}
+                  </span>
+                  <R2FileUploader
+                    compact={true}
+                    folder="lot-photos"
+                    accept="image/*"
+                    maxSizeMB={10}
+                    label={`Photo ${slotIdx + 1}`}
+                    currentUrl={photoUrls[slotIdx] || ''}
+                    onUploadComplete={(url) => {
+                      setPhotoUrls((prev) => {
+                        const updated = [...prev];
+                        updated[slotIdx] = url;
+                        return updated;
+                      });
+                    }}
+                    onRemove={() => {
+                      setPhotoUrls((prev) => {
+                        const updated = [...prev];
+                        updated[slotIdx] = '';
+                        return updated;
+                      });
+                    }}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
         </div>
+
 
         {submittedSuccess && (
           <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
