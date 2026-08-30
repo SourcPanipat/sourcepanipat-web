@@ -11,10 +11,14 @@ import { BuyerAuthModal } from '@/components/auth/BuyerAuthModal';
 import { Footer } from '@/components/Footer';
 import { SquareLoader } from '@/components/SquareLoader';
 import { useListingGate } from '@/hooks/useListingGate';
-import { MOCK_BALES, getBaleBySlug } from '@/lib/mock-catalog';
 import { BuyMode, BaleListing, BuyerUser } from '@/types';
+import { MOCK_BALES, getBaleBySlug } from '@/lib/mock-catalog';
 import { formatINR } from '@/lib/utils';
-import { getFormattedSellerName } from '@/lib/format-seller';
+import { getFormattedSellerName, getSellerSlug } from '@/lib/format-seller';
+
+
+
+
 import {
   ShieldCheck,
   Play,
@@ -448,11 +452,16 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 font-medium">
-                  Direct Godown Gate Dispatch
-                </span>
+                <Link
+                  href={`/${bale.seller?.slug || getSellerSlug(bale.seller?.fullName, bale.seller?.maskedCode)}`}
+                  className="text-xs text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 font-bold flex items-center gap-1.5 transition-colors shadow-xs"
+                >
+                  <span>Visit Trader Storefront</span>
+                  <span>→</span>
+                </Link>
               </div>
             </div>
+
 
 
           </div>

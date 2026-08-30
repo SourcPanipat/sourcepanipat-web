@@ -81,6 +81,7 @@ export interface MaskedSeller {
   id: string; // e.g. 'PNP-001'
   maskedCode: string; // '#PNP-001'
   fullName?: string; // e.g. 'Rajesh Kumar'
+  slug?: string; // e.g. 'rajesh-pnp-001'
   supplierTier: 'Gold Vetted Importer' | 'Direct Mill Godown' | 'Graded Sorting Hub';
   godownZone: 'Sanoli Road Godown Hub' | 'Noorwala Industrial Area' | 'Barsat Road Sorting Yard' | 'G.T. Road Wholesale Cluster';
   rating: number; // 4.9
@@ -96,6 +97,7 @@ export interface SellerProfile {
   id: string;
   maskedCode: string; // e.g. '#PNP-001'
   fullName: string;
+  slug?: string; // e.g. 'rajesh-pnp-001'
   phone: string;
   email: string;
   businessName: string;
@@ -123,6 +125,7 @@ export interface SellerProfile {
   repeatBuyerRate: number;
   createdAt: string;
 }
+
 
 export interface BaleListing {
   id: string;

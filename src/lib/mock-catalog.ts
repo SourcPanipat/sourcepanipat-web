@@ -1,10 +1,12 @@
 import { BaleListing, MaskedSeller, EscrowOrderRecord, Category } from '@/types';
+import { getSellerSlug } from './format-seller';
 
 export const MASKED_SELLERS: Record<string, MaskedSeller> = {
   "pnp-001": {
     "id": "pnp-001",
     "maskedCode": "#PNP-001",
     "fullName": "Rajesh Gupta",
+    "slug": "rajesh-pnp-001",
     "supplierTier": "Gold Vetted Importer",
     "godownZone": "Sanoli Road Godown Hub",
     "rating": 4.96,
@@ -17,6 +19,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
     "id": "pnp-002",
     "maskedCode": "#PNP-002",
     "fullName": "Vikram Sharma",
+    "slug": "vikram-pnp-002",
     "supplierTier": "Direct Mill Godown",
     "godownZone": "Noorwala Industrial Area",
     "rating": 4.88,
@@ -29,6 +32,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
     "id": "pnp-003",
     "maskedCode": "#PNP-003",
     "fullName": "Suresh Goel",
+    "slug": "suresh-pnp-003",
     "supplierTier": "Graded Sorting Hub",
     "godownZone": "Barsat Road Sorting Yard",
     "rating": 4.92,
@@ -41,6 +45,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
     "id": "pnp-004",
     "maskedCode": "#PNP-004",
     "fullName": "Anil Batra",
+    "slug": "anil-pnp-004",
     "supplierTier": "Gold Vetted Importer",
     "godownZone": "Sanoli Road Godown Hub",
     "rating": 4.94,
@@ -53,6 +58,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
     "id": "pnp-005",
     "maskedCode": "#PNP-005",
     "fullName": "Harish Chawla",
+    "slug": "harish-pnp-005",
     "supplierTier": "Direct Mill Godown",
     "godownZone": "Barsat Road Sorting Yard",
     "rating": 4.85,
@@ -65,6 +71,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
     "id": "pnp-006",
     "maskedCode": "#PNP-006",
     "fullName": "Manoj Singhal",
+    "slug": "manoj-pnp-006",
     "supplierTier": "Graded Sorting Hub",
     "godownZone": "Noorwala Industrial Area",
     "rating": 4.91,
@@ -74,6 +81,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
     "memberSince": "May 2022"
   }
 };
+
 
 
 export const CATEGORIES: Category[] = [
@@ -33273,3 +33281,59 @@ export function searchBales(query: string, category: string = 'all', subCategory
       bale.tags.some((tag) => tag.toLowerCase().includes(q))
   );
 }
+
+export function getAllSellerSlugs(): string[] {
+  const slugs = new Set<string>();
+  Object.values(MASKED_SELLERS).forEach((s) => {
+    if (s.slug) slugs.add(s.slug);
+    const gen = getSellerSlug(s.fullName, s.maskedCode);
+    if (gen) slugs.add(gen);
+  });
+  return Array.from(slugs);
+}
+
+export function getSellerBySlug(slug: string): MaskedSeller | undefined {
+  if (!slug) return undefined;
+  const clean = slug.toLowerCase().trim();
+
+  // 1. Direct match on slug
+  const direct = Object.values(MASKED_SELLERS).find((s) => s.slug?.toLowerCase() === clean);
+  if (direct) return direct;
+
+  // 2. Computed slug match
+  const computed = Object.values(MASKED_SELLERS).find((s) => {
+    const sSlug = getSellerSlug(s.fullName, s.maskedCode);
+    return sSlug.toLowerCase() === clean;
+  });
+  if (computed) return computed;
+
+  // 3. Fallback matching code in slug (e.g. "pnp-001")
+  const matchedSeller = Object.values(MASKED_SELLERS).find((s) => {
+    const codeKey = s.maskedCode.toLowerCase().replace('#', '');
+    return clean.includes(codeKey) || s.id.toLowerCase() === clean;
+  });
+  return matchedSeller;
+}
+
+export function getBalesBySeller(sellerIdOrSlug: string): BaleListing[] {
+  if (!sellerIdOrSlug) return [];
+  const clean = sellerIdOrSlug.toLowerCase().trim();
+
+  const seller = getSellerBySlug(clean);
+  const targetId = seller?.id.toLowerCase() || clean;
+  const targetCode = seller?.maskedCode.toLowerCase() || '';
+
+  return MOCK_BALES.filter((bale) => {
+    const baleSellerId = bale.seller.id.toLowerCase();
+    const baleSellerCode = bale.seller.maskedCode.toLowerCase();
+    const baleSellerSlug = bale.seller.slug?.toLowerCase() || getSellerSlug(bale.seller.fullName, bale.seller.maskedCode);
+
+    return (
+      baleSellerId === targetId ||
+      baleSellerCode === targetCode ||
+      baleSellerSlug === clean ||
+      clean.includes(baleSellerCode.replace('#', ''))
+    );
+  });
+}
+
