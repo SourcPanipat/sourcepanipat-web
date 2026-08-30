@@ -3,28 +3,22 @@
 import React from 'react';
 
 interface SquareLoaderProps {
-  message?: string;
-  subMessage?: string;
   fullScreen?: boolean;
 }
 
-export function SquareLoader({ 
-  message = 'Loading Godown Bale & 30s Inspection Video...', 
-  subMessage = 'Connecting to Panipat Yard Desk & Live Tare Audits',
-  fullScreen = true 
-}: SquareLoaderProps) {
+export function SquareLoader({ fullScreen = true }: SquareLoaderProps) {
   return (
     <div 
       className={`${
         fullScreen 
-          ? 'fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4' 
-          : 'w-full py-12 flex flex-col items-center justify-center'
-      } animate-in fade-in duration-200 select-none`}
+          ? 'fixed inset-0 z-50 bg-white flex items-center justify-center' 
+          : 'w-full py-12 flex items-center justify-center'
+      } select-none`}
     >
       <style jsx>{`
         .loadingspinner {
-          --square: 24px;
-          --offset: 28px;
+          --square: 26px;
+          --offset: 30px;
           --duration: 2.4s;
           --delay: 0.2s;
           --timing-function: ease-in-out;
@@ -34,24 +28,22 @@ export function SquareLoader({
           width: calc(3 * var(--offset) + var(--square));
           height: calc(2 * var(--offset) + var(--square));
           padding: 0px;
-          margin-left: auto;
-          margin-right: auto;
-          margin-top: 10px;
-          margin-bottom: 24px;
+          margin: 0px auto;
           position: relative;
         }
 
         .loadingspinner div {
           display: inline-block;
-          background: #f59e0b; /* Amber / Darkorange */
+          background: darkorange;
           border: none;
-          border-radius: 3px;
+          border-radius: 2px;
           width: var(--square);
           height: var(--square);
           position: absolute;
           padding: 0px;
           margin: 0px;
-          box-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
+          font-size: 6pt;
+          color: black;
         }
 
         .loadingspinner #square1 {
@@ -240,29 +232,13 @@ export function SquareLoader({
         }
       `}</style>
 
-      {/* Dancing Squares Spinner */}
+      {/* Pure Dancing Squares Spinner Only */}
       <div className="loadingspinner">
         <div id="square1" />
         <div id="square2" />
         <div id="square3" />
         <div id="square4" />
         <div id="square5" />
-      </div>
-
-      {/* Brand Label & Progress Text */}
-      <div className="text-center space-y-1.5 max-w-sm px-4">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-[10.5px] tracking-wider uppercase font-bold">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-          SourcePanipat Godown Network
-        </div>
-        <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
-          {message}
-        </h3>
-        {subMessage && (
-          <p className="text-xs text-slate-400">
-            {subMessage}
-          </p>
-        )}
       </div>
     </div>
   );

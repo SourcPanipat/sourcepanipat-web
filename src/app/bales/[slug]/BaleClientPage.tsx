@@ -109,16 +109,9 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   };
 
   if (isPageLoading) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <SquareLoader 
-          message="Loading Godown Lot & 30s Inspection Video..." 
-          subMessage="Connecting to Panipat Yard Desk & Live Tare Audits" 
-          fullScreen={true} 
-        />
-      </div>
-    );
+    return <SquareLoader fullScreen={true} />;
   }
+
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
