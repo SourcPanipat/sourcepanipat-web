@@ -327,7 +327,7 @@ export async function deleteListingFromDb(listingId: string): Promise<boolean> {
 }
 
 // Get live approved listings for marketplace where seller is active (not deactivated, not frozen)
-export async function getApprovedMarketplaceListings(categoryId?: string, subCategoryId?: string): Promise<BaleListing[]> {
+export async function getApprovedMarketplaceListings(categoryId?: string, subCategoryId?: string, limit = 50): Promise<BaleListing[]> {
   try {
     let query = supabase
       .from('listings')
@@ -335,7 +335,9 @@ export async function getApprovedMarketplaceListings(categoryId?: string, subCat
       .eq('status', 'approved')
       .eq('sellers.verification_status', 'approved')
       .eq('sellers.account_status', 'active')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
 
     if (categoryId && categoryId !== 'all') {
       query = query.eq('category_id', categoryId);
