@@ -23,8 +23,10 @@ import {
   Phone,
   Building,
   Film,
-  Layers
+  Layers,
+  MessageCircle
 } from 'lucide-react';
+
 
 
 interface BaleClientPageProps {
@@ -583,8 +585,8 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                 </div>
               </div>
 
-              {/* Primary Action Button */}
-              <div className="space-y-2 pt-1">
+              {/* Primary & Secondary Action Buttons */}
+              <div className="space-y-2.5 pt-1">
                 <button
                   onClick={handleInitiateOrder}
                   className="w-full py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 group"
@@ -593,27 +595,24 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                   <span>Lock & Buy via Escrow ({formatINR(finalTotalAmount)})</span>
                 </button>
 
-                <div className="text-[11px] text-center text-slate-500 flex items-center justify-center gap-1.5">
+                <a
+                  href={`https://wa.me/919876543210?text=${encodeURIComponent(
+                    `Hi SourcePanipat Desk, I have a question regarding Lot #${bale.id} (${bale.title}) from ${getFormattedSellerName(bale.seller?.fullName, bale.seller?.maskedCode)}: `
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-medium transition text-sm shadow-xs"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>Inquire About This Lot (Ground Desk)</span>
+                </a>
+
+                <div className="text-[11px] text-center text-slate-500 flex items-center justify-center gap-1.5 pt-0.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Funds held in ICICI Nodal Escrow until transport Bilti verification</span>
                 </div>
               </div>
 
-              {/* Direct Trader WhatsApp Desk */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <div className="text-[11px] text-slate-500">
-                  Have questions about this lot?
-                </div>
-                <a
-                  href={`https://wa.me/919876543210?text=Hi%20SourcePanipat,%20I%20am%20interested%20in%20Lot%20${bale.id}:%20${encodeURIComponent(bale.title)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Panipat Trader Desk</span>
-                </a>
-              </div>
 
             </div>
 
