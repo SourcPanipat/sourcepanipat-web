@@ -33337,3 +33337,22 @@ export function getBalesBySeller(sellerIdOrSlug: string): BaleListing[] {
   });
 }
 
+export function getAllCategorySlugs(): string[] {
+  return CATEGORIES.map((c) => c.slug);
+}
+
+export function getCategoryBySlug(slug: string): Category | undefined {
+  if (!slug) return undefined;
+  const clean = slug.toLowerCase().trim();
+  return CATEGORIES.find(
+    (c) => c.slug.toLowerCase() === clean || c.id.toLowerCase() === clean
+  );
+}
+
+export function getBalesByCategorySlug(catSlug: string, subSlug?: string): BaleListing[] {
+  const cat = getCategoryBySlug(catSlug);
+  const catId = cat ? cat.id : catSlug;
+  return getBalesByCategory(catId, subSlug);
+}
+
+
