@@ -17,34 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function SellerProfilePage() {
-  const [seller, setSeller] = useState<SellerProfile>({
-    id: 'pnp-001',
-    maskedCode: '#PNP-001',
-    fullName: 'Ramesh Gupta',
-    phone: '+91 98120 34567',
-    email: 'seller@guptatextiles.com',
-    businessName: 'Gupta Woollen & Import Syndicate',
-    godownZone: 'Sanoli Road Godown Hub',
-    yardAddress: 'Plot 42, Sanoli Road Wholesale Godown Hub, Panipat',
-    primaryInventoryTypes: ['Korean Heavy Puffers', 'Heavy 450 GSM Fleece Hoodies'],
-    isGstinRegistered: true,
-    gstin: '06AAAAA0000A1Z5',
-    bankAccountNumber: '50200012345678',
-    bankIfscCode: 'HDFC0001234',
-    accountHolderName: 'Gupta Woollen Syndicate',
-    bankName: 'HDFC Bank, Panipat',
-    verificationStatus: 'approved',
-    rating: 4.96,
-    trustScore: 100.0,
-    totalOrders: 1420,
-    fulfilledOrders: 1420,
-    cancelledOrders: 0,
-    totalDispatchedBales: 1420,
-    repeatBuyerRate: 96,
-    logoUrl: '/logo-icon.png',
-    createdAt: '2021-10-15T10:00:00Z',
-  });
-
+  const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [logoPreview, setLogoPreview] = useState<string>('/logo-icon.png');
@@ -63,6 +36,7 @@ export default function SellerProfilePage() {
       }
     }
   }, []);
+
 
   // 90% Canvas-Based JPEG Compression
   const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +74,7 @@ export default function SellerProfilePage() {
           // 90% compression quality
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
           setLogoPreview(compressedDataUrl);
-          setSeller(prev => ({ ...prev, logoUrl: compressedDataUrl }));
+          setSeller(prev => (prev ? { ...prev, logoUrl: compressedDataUrl } : null));
         }
         setIsCompressing(false);
       };
@@ -111,6 +85,7 @@ export default function SellerProfilePage() {
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!seller) return;
     setIsSaving(true);
 
     if (typeof window !== 'undefined') {
@@ -123,6 +98,15 @@ export default function SellerProfilePage() {
       setTimeout(() => setSuccessMsg(''), 3000);
     }, 600);
   };
+
+  if (!seller) {
+    return (
+      <div className="p-12 text-center text-xs text-slate-500 font-medium">
+        Loading Godown Profile...
+      </div>
+    );
+  }
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

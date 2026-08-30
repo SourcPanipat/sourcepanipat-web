@@ -16,53 +16,8 @@ import {
 
 export default function SellerPayoutsPage() {
   const [seller, setSeller] = useState<SellerProfile | null>(null);
+  const [payouts, setPayouts] = useState<any[]>([]);
 
-  const [payouts] = useState([
-    {
-      id: 'PAY-98124',
-      orderNumber: 'SP-ESCROW-782190',
-      baleTitle: 'Korean Heavy Puffer Jackets (80kg)',
-      grossAmount: 32000,
-      platformFee: 960, // 3%
-      netPayout: 31040,
-      settlementStatus: 'escrow_locked',
-      payoutDate: 'Pending Dispatch Confirmation',
-      utrReference: 'Awaiting LR Bilti verification',
-    },
-    {
-      id: 'PAY-89211',
-      orderNumber: 'SP-ESCROW-640192',
-      baleTitle: 'Vintage Heavy Denim Jackets (100kg)',
-      grossAmount: 89000,
-      platformFee: 2670,
-      netPayout: 86330,
-      settlementStatus: 'bank_transferred',
-      payoutDate: '2026-08-28 16:45 IST',
-      utrReference: 'HDFC-N38291048821',
-    },
-    {
-      id: 'PAY-74120',
-      orderNumber: 'SP-ESCROW-519024',
-      baleTitle: 'Heavy 450 GSM Fleece Hoodies (80kg)',
-      grossAmount: 26000,
-      platformFee: 780,
-      netPayout: 25220,
-      settlementStatus: 'bank_transferred',
-      payoutDate: '2026-08-26 14:10 IST',
-      utrReference: 'ICIC-T9821471092',
-    },
-    {
-      id: 'PAY-62119',
-      orderNumber: 'SP-ESCROW-401928',
-      baleTitle: 'Double-Ply Embossed Heavy Mink Blankets',
-      grossAmount: 48000,
-      platformFee: 1440,
-      netPayout: 46560,
-      settlementStatus: 'bank_transferred',
-      payoutDate: '2026-08-22 18:30 IST',
-      utrReference: 'SBIN-00291847192',
-    }
-  ]);
 
   const [searchQuery, setSearchQuery] = useState('');
 

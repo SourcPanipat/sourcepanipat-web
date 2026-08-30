@@ -17,12 +17,20 @@ export default function SellerPerformancePage() {
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'all'>('month');
 
+  const [orders, setOrders] = useState<any[]>([]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('sp_active_seller');
       if (stored) {
         try {
           setSeller(JSON.parse(stored));
+        } catch (e) {}
+      }
+      const storedOrders = localStorage.getItem('sp_escrow_orders');
+      if (storedOrders) {
+        try {
+          setOrders(JSON.parse(storedOrders));
         } catch (e) {}
       }
     }
@@ -32,14 +40,16 @@ export default function SellerPerformancePage() {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amt);
   };
 
-  const revenueData = {
-    day: { gross: 32000, net: 31040, bales: 1, repeat: 100 },
-    week: { gross: 147000, net: 142590, bales: 5, repeat: 96 },
-    month: { gross: 485000, net: 470450, bales: 16, repeat: 94 },
-    all: { gross: 3840000, net: 3724800, bales: 1420, repeat: 96 },
+  const totalGross = orders.reduce((sum, o) => sum + (o.totalAmount || o.totalPayable || 0), 0);
+  const totalNet = Math.round(totalGross * 0.97);
+
+  const currentRev = {
+    gross: totalGross,
+    net: totalNet,
+    bales: orders.length,
+    repeat: seller?.repeatBuyerRate || 100,
   };
 
-  const currentRev = revenueData[period];
 
   return (
     <div className="space-y-6">

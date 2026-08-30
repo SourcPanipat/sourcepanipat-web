@@ -26,45 +26,20 @@ export default function SellerPortalLayout({
             return;
           }
           setSeller(parsed);
+          setIsLoading(false);
+          return;
         } catch (e) {}
-      } else {
-        // Fallback default approved seller
-        const defaultApproved: SellerProfile = {
-          id: 'pnp-001',
-          maskedCode: '#PNP-001',
-          fullName: 'Ramesh Gupta',
-          phone: '+91 98120 34567',
-          email: 'seller@guptatextiles.com',
-          businessName: 'Gupta Woollen & Import Syndicate',
-          godownZone: 'Sanoli Road Godown Hub',
-          yardAddress: 'Plot 42, Sanoli Road Wholesale Godown Hub, Panipat',
-          primaryInventoryTypes: ['Korean Heavy Puffers', 'Heavy 450 GSM Fleece Hoodies'],
-          isGstinRegistered: true,
-          gstin: '06AAAAA0000A1Z5',
-          bankAccountNumber: '50200012345678',
-          bankIfscCode: 'HDFC0001234',
-          accountHolderName: 'Gupta Woollen Syndicate',
-          bankName: 'HDFC Bank, Panipat',
-          verificationStatus: 'approved',
-          rating: 4.96,
-          trustScore: 100.0,
-          totalOrders: 1420,
-          fulfilledOrders: 1420,
-          cancelledOrders: 0,
-          totalDispatchedBales: 1420,
-          repeatBuyerRate: 96,
-          createdAt: '2021-10-15T10:00:00Z',
-        };
-        localStorage.setItem('sp_active_seller', JSON.stringify(defaultApproved));
-        setSeller(defaultApproved);
       }
+      
+      // If no valid active seller logged in, redirect to login
       setIsLoading(false);
+      router.push('/seller/login');
     }
   }, [router]);
 
   if (isLoading || !seller) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-xs text-slate-500">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-xs text-slate-500 font-medium">
         Loading Godown Portal...
       </div>
     );

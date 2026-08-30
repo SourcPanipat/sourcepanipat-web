@@ -19,86 +19,53 @@ import {
 } from 'lucide-react';
 
 export default function SellerOrdersPage() {
-  const [orders, setOrders] = useState<SellerOrderDispatch[]>([
-    {
-      id: 'ORD-782190',
-      orderNumber: 'SP-ESCROW-782190',
-      baleId: 'bale-001',
-      baleTitle: 'Korean Heavy Puffer Jackets (Grade A Cream Lot)',
-      baleThumbnail: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80',
-      baleWeightKg: 80,
-      buyMode: 'sealed_bale',
-      quantity: 1,
-      totalAmount: 32000,
-      buyerName: 'Rahul Sharma',
-      buyerPhone: '+91 98112 34567',
-      buyerBusinessName: 'Urban Vintage Thrift Studio',
-      buyerCity: 'New Delhi',
-      buyerState: 'Delhi NCR',
-      deliveryAddress: 'Shop 14, Hauz Khas Village Market, New Delhi',
-      escrowStatus: 'QC_APPROVAL_PENDING',
-      sellerStatus: 'confirmed',
-      settlementStatus: 'escrow_locked',
-      inspectorName: 'Vikram S. (#PNP-INSP-04)',
-      inspectorPhone: '+91 89502 02286',
+  const [orders, setOrders] = useState<SellerOrderDispatch[]>([]);
 
-      verifiedTareWeightKg: 81.4,
-      createdAt: '2026-08-28T14:20:00Z',
-    },
-    {
-      id: 'ORD-640192',
-      orderNumber: 'SP-ESCROW-640192',
-      baleId: 'bale-006',
-      baleTitle: 'Vintage Heavy Denim Jackets & Workwear Duck Canvas',
-      baleThumbnail: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=800&q=80',
-      baleWeightKg: 100,
-      buyMode: 'sealed_bale',
-      quantity: 2,
-      totalAmount: 89000,
-      buyerName: 'Manish Verma',
-      buyerPhone: '+91 98221 44556',
-      buyerBusinessName: 'Verma Thrift Depot',
-      buyerCity: 'Jaipur',
-      buyerState: 'Rajasthan',
-      deliveryAddress: 'Plot 12, MI Road, Jaipur',
-      escrowStatus: 'DISPATCHED_BILTI_UPLOADED',
-      sellerStatus: 'dispatched',
-      settlementStatus: 'escrow_locked',
-      inspectorName: 'Rajesh Malik (#PNP-INSP-02)',
-      inspectorPhone: '+91 98765 88990',
-      verifiedTareWeightKg: 202.8,
-      biltiLrNumber: 'TCI-PNP-984421',
-      transporterName: 'TCI Freight Panipat Godown Hub',
-      biltiScanUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80',
-      createdAt: '2026-08-27T11:00:00Z',
-    },
-    {
-      id: 'ORD-519024',
-      orderNumber: 'SP-ESCROW-519024',
-      baleId: 'bale-003',
-      baleTitle: 'Heavy 450 GSM Fleece Hoodies (Grade A)',
-      baleThumbnail: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80',
-      baleWeightKg: 80,
-      buyMode: 'sealed_bale',
-      quantity: 1,
-      totalAmount: 26000,
-      buyerName: 'Ananya Roy',
-      buyerPhone: '+91 98300 11223',
-      buyerBusinessName: 'Kolkata Thrift House',
-      buyerCity: 'Kolkata',
-      buyerState: 'West Bengal',
-      deliveryAddress: 'Park Street, Kolkata',
-      escrowStatus: 'INSPECTOR_ASSIGNED',
-      sellerStatus: 'new',
-      settlementStatus: 'escrow_locked',
-      inspectorName: 'Harish Kumar (#PNP-INSP-01)',
-      inspectorPhone: '+91 98765 11223',
-      createdAt: '2026-08-29T11:30:00Z',
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const storedOrders = localStorage.getItem('sp_escrow_orders');
+    const recentOrder = localStorage.getItem('sp_recent_order');
+    let all: SellerOrderDispatch[] = [];
+    if (storedOrders) {
+      try { all = JSON.parse(storedOrders); } catch (e) {}
     }
-  ]);
+    if (recentOrder) {
+      try {
+        const parsed = JSON.parse(recentOrder);
+        if (!all.some(o => o.orderNumber === parsed.orderNumber || o.id === parsed.id)) {
+          all.unshift({
+            id: parsed.id || 'ORD-NEW',
+            orderNumber: parsed.orderNumber || parsed.id,
+            baleId: parsed.baleId || 'bale-new',
+            baleTitle: parsed.baleTitle || 'Wholesale Lot',
+            baleThumbnail: parsed.baleThumbnail || '',
+            baleWeightKg: parsed.baleWeightKg || 80,
+            buyMode: parsed.buyMode || 'sealed_bale',
+            quantity: parsed.quantityBales || 1,
+            totalAmount: parsed.totalPayable || 30000,
+            buyerName: parsed.buyerName || 'Verified Buyer',
+            buyerPhone: parsed.buyerPhone || '+91 89502 02286',
+            buyerBusinessName: parsed.buyerBusinessName || 'Thrift Store',
+            buyerCity: parsed.deliveryCity || 'Delhi',
+            buyerState: parsed.deliveryState || 'Delhi NCR',
+            deliveryAddress: parsed.deliveryAddress || 'Delivery Address',
+            escrowStatus: parsed.escrowStatus || 'ESCROW_LOCKED',
+            sellerStatus: 'new',
+            settlementStatus: 'escrow_locked',
+            inspectorName: parsed.inspector?.name || 'Vikram S. (#PNP-INSP-04)',
+            inspectorPhone: parsed.inspector?.phone || '+91 89502 02286',
+            verifiedTareWeightKg: parsed.inspector?.verifiedTareWeightKg || 80,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      } catch (e) {}
+    }
+    setOrders(all);
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'all' | 'new' | 'confirmed' | 'dispatched' | 'completed' | 'cancelled'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
 
   // Upload Bilti Dialog State
   const [selectedOrderForBilti, setSelectedOrderForBilti] = useState<SellerOrderDispatch | null>(null);

@@ -135,8 +135,8 @@ export default function SellerLandingPage() {
                 
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div>
-                    <span className="font-mono text-xs font-bold text-amber-400">#PNP-SELLER-001</span>
-                    <h3 className="text-sm font-bold text-white mt-0.5">Sanoli Road Godown Hub</h3>
+                    <span className="font-mono text-xs font-bold text-amber-400">Panipat Godown Network</span>
+                    <h3 className="text-sm font-bold text-white mt-0.5">Verified Direct Yard Hub</h3>
                   </div>
                   <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded">
                     KYC Verified
@@ -145,22 +145,23 @@ export default function SellerLandingPage() {
 
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
-                    <div className="text-xs text-slate-400">Total Escrow Dispatches</div>
-                    <div className="text-lg font-black text-white mt-0.5">1,420+ Bales</div>
+                    <div className="text-xs text-slate-400">B2B Buyer Reach</div>
+                    <div className="text-lg font-black text-white mt-0.5">8,500+ Buyers</div>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
-                    <div className="text-xs text-slate-400">Seller Trust Score</div>
-                    <div className="text-lg font-black text-emerald-400 mt-0.5">100% ⭐</div>
+                    <div className="text-xs text-slate-400">Default Protection</div>
+                    <div className="text-lg font-black text-emerald-400 mt-0.5">100% Escrow</div>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
                     <div className="text-xs text-slate-400">Avg. Payout Speed</div>
                     <div className="text-lg font-black text-white mt-0.5">T+1 Day</div>
                   </div>
                   <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700">
-                    <div className="text-xs text-slate-400">Payment Security</div>
-                    <div className="text-lg font-black text-amber-400 mt-0.5">100% Escrow</div>
+                    <div className="text-xs text-slate-400">Tare Weighment</div>
+                    <div className="text-lg font-black text-amber-400 mt-0.5">Digital Scale</div>
                   </div>
                 </div>
+
 
                 <div className="p-3 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-300 space-y-1">
                   <div className="font-bold text-white flex items-center gap-1.5">

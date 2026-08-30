@@ -19,105 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function SellerListingsPage() {
-  const [lots, setLots] = useState<BaleListingItem[]>([
-    {
-      id: 'bale-001',
-      slug: 'korean-heavy-puffers-bale-001',
-      sellerId: 'pnp-001',
-      categoryId: 'winter-jackets-outerwear',
-      subCategoryId: 'heavy-puffers',
-      categoryLabel: 'Winter Jackets & Outerwear',
-      title: 'Korean Heavy Puffer Jackets (Grade A Cream Lot)',
-      shortDescription: 'High-density duck down and poly-fill puffers. Top Korean branded winter outerwear.',
-      sourcingMode: 'both',
-      originCountry: 'South Korea',
-      originFlag: 'KR',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=800&q=80',
-      galleryImages: [],
-      weightKg: 80,
-      estimatedPieceCount: 72,
-      sealedBalePrice: 32000,
-      curatedPiecePrice: 480,
-      curatedMoq: 25,
-      gradeA: 85,
-      gradeB: 12,
-      gradeC: 3,
-      videos: [],
-      photos: [],
-      godownBatchId: 'BATCH-SANOLI-2026-W09',
-      qcVerified: true,
-      inStockCount: 6,
-      fabricComposition: '100% Nylon Ripstop Outer, Duck Down',
-      expectedGrossMargin: '3.8x - 5.2x Margin',
-      status: 'approved',
-      createdAt: '2026-08-27T10:00:00Z',
-    },
-    {
-      id: 'bale-006',
-      slug: 'heavyweight-zipper-bomber-leather-flight-jackets',
-      sellerId: 'pnp-001',
-      categoryId: 'winter-jackets-outerwear',
-      subCategoryId: 'leather-bombers',
-      categoryLabel: 'Winter Jackets & Outerwear',
-      title: 'Heavyweight Zipper Bomber & Leather Flight Jackets',
-      shortDescription: 'USA and Korean MA-1 flight bombers, shearling collar aviator jackets.',
-      sourcingMode: 'pieces_only',
-      originCountry: 'USA & Korea',
-      originFlag: 'US',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80',
-      galleryImages: [],
-      weightKg: 90,
-      estimatedPieceCount: 65,
-      sealedBalePrice: 39500,
-      curatedPiecePrice: 680,
-      curatedMoq: 20,
-      gradeA: 84,
-      gradeB: 12,
-      gradeC: 4,
-      videos: [],
-      photos: [],
-      godownBatchId: 'BATCH-SANOLI-2026-W09',
-      qcVerified: true,
-      inStockCount: 4,
-      fabricComposition: 'Top-Grain Leather & Heavy Flight Nylon Shell',
-      expectedGrossMargin: '4.0x - 6.5x Margin',
-      status: 'approved',
-      createdAt: '2026-08-27T18:00:00Z',
-    },
-    {
-      id: 'bale-010',
-      slug: 'sherpa-lined-trucker-jackets-quilted-vests',
-      sellerId: 'pnp-001',
-      categoryId: 'winter-jackets-outerwear',
-      subCategoryId: 'sherpa-truckers',
-      categoryLabel: 'Winter Jackets & Outerwear',
-      title: 'Sherpa Lined Trucker Jackets & Heavy Quilted Vests',
-      shortDescription: 'USA workwear sherpa-lined corduroy & denim truckers with warm insulating vests.',
-      sourcingMode: 'both',
-      originCountry: 'United States',
-      originFlag: 'US',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80',
-      galleryImages: [],
-      weightKg: 85,
-      estimatedPieceCount: 85,
-      sealedBalePrice: 32500,
-      curatedPiecePrice: 420,
-      curatedMoq: 25,
-      gradeA: 82,
-      gradeB: 15,
-      gradeC: 3,
-      videos: [],
-      photos: [],
-      godownBatchId: 'BATCH-SANOLI-2026-W09',
-      qcVerified: true,
-      inStockCount: 5,
-      fabricComposition: '100% Cotton Outer, Poly Faux Shearling',
-      expectedGrossMargin: '3.6x - 5.0x Margin',
-      status: 'pending_approval',
-      createdAt: '2026-08-29T12:00:00Z',
-    },
-  ]);
-
+  const [lots, setLots] = useState<BaleListingItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatusTab, setSelectedStatusTab] = useState<'all' | 'approved' | 'pending_approval' | 'rejected'>('all');
   
@@ -134,13 +36,14 @@ export default function SellerListingsPage() {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          setLots((prev) => [...parsed, ...prev.filter(p => !parsed.some((x: any) => x.id === p.id))]);
+          setLots(parsed);
         } catch (e) {}
       }
     }
   }, []);
 
   const handleDelete = (id: string) => {
+
     const updated = lots.filter(l => l.id !== id);
     setLots(updated);
     if (typeof window !== 'undefined') {

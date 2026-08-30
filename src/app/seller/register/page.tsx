@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { SellerPublicNav } from '@/components/seller/SellerPublicNav';
 import { SellerFooter } from '@/components/seller/SellerFooter';
 import { GodownZone, SellerProfile } from '@/types';
+import { supabase } from '@/lib/supabase-client';
+
 import { 
   Building2, 
   Upload, 
@@ -68,12 +70,13 @@ export default function SellerRegisterPage() {
     const sellerId = `pnp-seller-${Date.now().toString().slice(-6)}`;
     const maskedCode = `#PNP-00${Math.floor(7 + Math.random() * 90)}`;
 
-    const newProfile: SellerProfile = {
+    const newProfile: SellerProfile & { password?: string } = {
       id: sellerId,
       maskedCode,
       fullName,
       phone: phone.startsWith('+91') ? phone : `+91 ${phone}`,
       email,
+      password,
       businessName,
       godownZone,
       yardAddress,
@@ -97,9 +100,40 @@ export default function SellerRegisterPage() {
       createdAt: new Date().toISOString(),
     };
 
+    // 1. Try Supabase Auth Sign Up
+    if (supabase && email.includes('@') && password) {
+      try {
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              business_name: businessName,
+              phone: phone,
+              godown_zone: godownZone,
+              role: 'seller',
+            },
+          },
+        });
+      } catch (err) {
+        console.warn('Supabase seller registration error:', err);
+      }
+    }
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('sp_active_seller', JSON.stringify(newProfile));
       localStorage.setItem('sp_pending_seller', JSON.stringify(newProfile));
+
+      // Append to sp_registered_sellers
+      const stored = localStorage.getItem('sp_registered_sellers');
+      let registered = [];
+      if (stored) {
+        try { registered = JSON.parse(stored); } catch (e) {}
+      }
+      registered = registered.filter((s: any) => s.email?.toLowerCase() !== email.toLowerCase());
+      registered.push(newProfile);
+      localStorage.setItem('sp_registered_sellers', JSON.stringify(registered));
     }
 
     setTimeout(() => {
@@ -107,6 +141,7 @@ export default function SellerRegisterPage() {
       router.push('/seller/status/pending');
     }, 800);
   };
+
 
   const hubs: GodownZone[] = [
     'Sanoli Road Godown Hub',
