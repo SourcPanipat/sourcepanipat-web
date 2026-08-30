@@ -64,13 +64,34 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   }, [slug]);
 
   if (!bale) {
-    notFound();
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+        <Header />
+        <main className="flex-1 max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-800 border border-amber-200 flex items-center justify-center mx-auto">
+            <Layers className="w-6 h-6" />
+          </div>
+          <h1 className="text-xl font-bold text-slate-900">Lot Listing Not Found</h1>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            This bale lot may have been booked, archived, or is currently under staging inspection.
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"
+          >
+            ← Back to Marketplace
+          </Link>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const initialBuyMode: BuyMode =
     bale.sourcingMode === 'pieces_only' ? 'curated_lot' : 'sealed_bale';
 
   const [selectedBuyMode, setSelectedBuyMode] = useState<BuyMode>(initialBuyMode);
+
   const [baleQuantity, setBaleQuantity] = useState<number>(1);
   const [curatedPieces, setCuratedPieces] = useState<number>(bale.curatedMoq || 25);
   const [includeShield, setIncludeShield] = useState<boolean>(true);

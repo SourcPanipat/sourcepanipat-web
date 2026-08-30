@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { BaleListing } from '@/types';
 import { ProductCard } from './ProductCard';
 import { Package, ArrowUpDown, Sparkles, Loader2, Layers, CheckCircle2 } from 'lucide-react';
+
 
 interface ProductFeedProps {
   bales: BaleListing[];
@@ -113,14 +115,26 @@ export function ProductFeed({ bales, onPreviewVideo }: ProductFeedProps) {
 
       {/* Empty State */}
       {sortedBales.length === 0 ? (
-        <div className="py-12 text-center bg-white rounded-xl border border-slate-200 p-6 shadow-2xs">
-          <Package className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-          <h3 className="text-xs font-semibold text-slate-800">No bales found matching your search</h3>
-          <p className="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto">
-            Try adjusting your search terms or category selection to find available godown inventory.
+        <div className="py-14 text-center bg-white rounded-2xl border border-slate-200 p-8 shadow-2xs space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-800 border border-amber-200 flex items-center justify-center mx-auto">
+            <Package className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-bold text-slate-900">No live wholesale lots published yet</h3>
+          <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+            Panipat godown traders are currently auditing and staging new imported container arrivals. Real-time lots will appear here as soon as approved by the admin desk.
           </p>
+          <div className="pt-2">
+            <Link
+              href="/seller/register"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors"
+            >
+              <span>Are you a Panipat Godown Owner? List Your Lots</span>
+              <span>→</span>
+            </Link>
+          </div>
         </div>
       ) : (
+
         <>
           {/* Main 4-Column Product Grid (Responsive: 2 on mobile, 4 on desktop) */}
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
