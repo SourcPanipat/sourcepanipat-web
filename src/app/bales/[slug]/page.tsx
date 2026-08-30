@@ -1,13 +1,32 @@
 import { MOCK_BALES } from '@/lib/mock-catalog';
 import { BaleClientPage } from './BaleClientPage';
+import { supabase } from '@/lib/supabase-client';
 
-export function generateStaticParams() {
-  if (MOCK_BALES.length === 0) {
-    return [{ slug: 'sample-lot' }];
+export async function generateStaticParams() {
+  const slugs = new Set<string>();
+
+  // 1. Add mock catalog slugs if any
+  MOCK_BALES.forEach((b) => {
+    if (b.slug) slugs.add(b.slug);
+  });
+
+  // 2. Fetch all live slugs from Supabase at build time
+  try {
+    if (supabase) {
+      const { data } = await supabase.from('listings').select('slug');
+      (data || []).forEach((row: any) => {
+        if (row.slug) slugs.add(row.slug);
+      });
+    }
+  } catch (err) {
+    console.warn('generateStaticParams error fetching listings:', err);
   }
-  return MOCK_BALES.map((bale) => ({
-    slug: bale.slug,
-  }));
+
+  if (slugs.size === 0) {
+    slugs.add('sample-lot');
+  }
+
+  return Array.from(slugs).map((slug) => ({ slug }));
 }
 
 export default function Page({ params }: { params: { slug: string } }) {

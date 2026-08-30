@@ -13,11 +13,9 @@ import { SquareLoader } from '@/components/SquareLoader';
 import { useListingGate } from '@/hooks/useListingGate';
 import { BuyMode, BaleListing, BuyerUser } from '@/types';
 import { MOCK_BALES, getBaleBySlug } from '@/lib/mock-catalog';
+import { getMarketplaceListingBySlug } from '@/lib/supabase-db';
 import { formatINR } from '@/lib/utils';
 import { getFormattedSellerName, getSellerSlug } from '@/lib/format-seller';
-
-
-
 
 import {
   ShieldCheck,
@@ -42,8 +40,8 @@ interface BaleClientPageProps {
 }
 
 export function BaleClientPage({ slug }: BaleClientPageProps) {
+  const [bale, setBale] = useState<BaleListing | null>(() => getBaleBySlug(slug) || null);
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
-  const bale = getBaleBySlug(slug) || MOCK_BALES[0];
 
   // 20-Listing Guest Gatekeeper
   const {
@@ -56,12 +54,32 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   } = useListingGate(bale?.id);
 
   useEffect(() => {
-    // Dynamic smooth transition loader (650ms)
-    const timer = setTimeout(() => {
-      setIsPageLoading(false);
-    }, 650);
-    return () => clearTimeout(timer);
+    let isMounted = true;
+    async function loadListing() {
+      try {
+        const live = await getMarketplaceListingBySlug(slug);
+        if (live && isMounted) {
+          setBale(live);
+          setIsPageLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Error fetching live bale listing from Supabase:', err);
+      }
+
+      if (isMounted) {
+        const fallback = getBaleBySlug(slug) || MOCK_BALES.find(b => b.slug === slug) || MOCK_BALES[0];
+        setBale(fallback || null);
+        setIsPageLoading(false);
+      }
+    }
+
+    loadListing();
+    return () => {
+      isMounted = false;
+    };
   }, [slug]);
+
 
   if (!bale) {
     return (
