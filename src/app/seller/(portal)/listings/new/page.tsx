@@ -595,8 +595,9 @@ export default function NewListingPage() {
             </div>
             <span className="text-[10.5px] text-emerald-700 font-semibold flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-              Cloudflare R2 Direct Upload Active
+              Backblaze B2 Presigned Upload Active
             </span>
+
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -555,7 +555,7 @@ export default function SellerRegisterPage() {
                       accept=".pdf,.jpg,.jpeg,.png"
                       maxSizeMB={5}
                       label="Upload GST Certificate"
-                      sublabel="PDF, JPG up to 5MB (Cloudflare R2 Encrypted)"
+                      sublabel="PDF, JPG up to 5MB (Supabase Escrow Vault Encrypted)"
                       currentUrl={gstDocUrl}
                       currentFileName={gstDocName}
                       onUploadComplete={(url, name) => {
@@ -575,11 +575,11 @@ export default function SellerRegisterPage() {
                       Yard Signboard / Godown Front Photo
                     </label>
                     <R2FileUploader
-                      folder="kyc"
+                      folder="godowns"
                       accept="image/*"
                       maxSizeMB={10}
                       label="Upload Godown Photo"
-                      sublabel="Front signboard or storage bay (JPG, PNG up to 10MB)"
+                      sublabel="Front signboard or storage bay (JPG, PNG up to 10MB - Backblaze B2)"
                       currentUrl={yardPhotoUrl}
                       currentFileName={yardPhotoName}
                       onUploadComplete={(url, name) => {
@@ -592,6 +592,7 @@ export default function SellerRegisterPage() {
                       }}
                     />
                   </div>
+
 
                 </div>
 

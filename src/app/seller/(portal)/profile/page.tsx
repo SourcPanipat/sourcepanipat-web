@@ -75,10 +75,30 @@ export default function SellerProfilePage() {
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          // 90% compression quality
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
           setLogoPreview(compressedDataUrl);
-          setSeller(prev => (prev ? { ...prev, logoUrl: compressedDataUrl } : null));
+
+          // Upload to Backblaze B2
+          canvas.toBlob(async (blob) => {
+            if (blob) {
+              const formData = new FormData();
+              formData.append('file', blob, `logo-${seller?.id || 'seller'}.jpg`);
+              formData.append('folder', 'profiles');
+              try {
+                const res = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formData,
+                });
+                const data = await res.json();
+                if (data.success && data.url) {
+                  setSeller(prev => (prev ? { ...prev, logoUrl: data.url } : null));
+                  setLogoPreview(data.url);
+                }
+              } catch (uploadErr) {
+                console.warn('Error uploading logo to B2:', uploadErr);
+              }
+            }
+          }, 'image/jpeg', 0.9);
         }
         setIsCompressing(false);
       };
@@ -86,6 +106,7 @@ export default function SellerProfilePage() {
     };
     reader.readAsDataURL(file);
   };
+
 
   const isFrozen = seller?.accountStatus === 'frozen';
 

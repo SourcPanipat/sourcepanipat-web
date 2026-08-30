@@ -324,13 +324,14 @@ export function R2FileUploader({
               {state === 'trimming'
                 ? `Auto-trimming to ${maxDurationSec}s preview...`
                 : state === 'uploading'
-                ? 'Uploading to Cloudflare R2...'
+                ? 'Uploading to Storage Vault...'
                 : state === 'done'
-                ? '✓ Uploaded to Cloudflare R2'
+                ? '✓ Securely Uploaded & Presigned'
                 : state === 'error'
                 ? errorMsg
                 : sublabel || `Max ${maxSizeMB}MB${maxDurationSec ? ` • Auto-trimmed to ${maxDurationSec}s` : ''}`}
             </p>
+
 
             {/* Progress bar */}
             {(state === 'uploading' || state === 'trimming') && (
