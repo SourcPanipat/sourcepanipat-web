@@ -16,6 +16,8 @@ import {
   Camera
 } from 'lucide-react';
 import { SquareLoader } from '@/components/SquareLoader';
+import { updateSellerProfileInDb } from '@/lib/supabase-db';
+
 
 
 export default function SellerProfilePage() {
@@ -85,25 +87,38 @@ export default function SellerProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const isFrozen = seller?.accountStatus === 'frozen';
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!seller) return;
-    setIsSaving(true);
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sp_active_seller', JSON.stringify(seller));
+    if (isFrozen) {
+      alert('Your account is frozen. You cannot update profile details.');
+      return;
     }
 
-    setTimeout(() => {
-      setIsSaving(false);
-      setSuccessMsg('Godown profile updated successfully!');
+    setIsSaving(true);
+
+    try {
+      const updated = await updateSellerProfileInDb(seller.id, seller);
+      setSeller(updated);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sp_active_seller', JSON.stringify(updated));
+      }
+      setSuccessMsg('Godown profile updated successfully in database!');
       setTimeout(() => setSuccessMsg(''), 3000);
-    }, 600);
+    } catch (err: any) {
+      console.error('Error updating seller profile:', err);
+      alert('Failed to update profile: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!seller) {
     return <SquareLoader fullScreen={true} />;
   }
+
 
 
 

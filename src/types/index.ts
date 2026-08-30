@@ -93,6 +93,8 @@ export interface MaskedSeller {
 }
 
 
+export type SellerAccountStatus = 'active' | 'deactivated' | 'frozen';
+
 export interface SellerProfile {
   id: string;
   maskedCode: string; // e.g. '#PNP-001'
@@ -114,6 +116,7 @@ export interface SellerProfile {
   gstDocUrl?: string;
   yardPhotoUrl?: string;
   verificationStatus: SellerVerificationStatus;
+  accountStatus?: SellerAccountStatus; // 'active' | 'deactivated' | 'frozen'
   rejectionReason?: string;
   approvedAt?: string;
   rating: number;
@@ -125,6 +128,7 @@ export interface SellerProfile {
   repeatBuyerRate: number;
   createdAt: string;
 }
+
 
 
 export interface BaleListing {

@@ -7,6 +7,7 @@ import { SellerPublicNav } from '@/components/seller/SellerPublicNav';
 import { SellerFooter } from '@/components/seller/SellerFooter';
 import { GodownZone, SellerProfile } from '@/types';
 import { supabase } from '@/lib/supabase-client';
+import { registerSellerInDb } from '@/lib/supabase-db';
 
 import { 
   Building2, 
@@ -15,48 +16,52 @@ import {
   Check, 
   ArrowRight, 
   ArrowLeft,
-  Lock
+  Lock,
+  AlertCircle
 } from 'lucide-react';
 
 export default function SellerRegisterPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registerError, setRegisterError] = useState('');
 
-  // Step 1: Personal & Contact
+  // Step 1: Godown Profile & Location
+  const [businessName, setBusinessName] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // Step 2: Godown & Hub Info
-  const [businessName, setBusinessName] = useState('');
   const [godownZone, setGodownZone] = useState<GodownZone>('Sanoli Road Godown Hub');
   const [yardAddress, setYardAddress] = useState('');
+
+  // Step 2: Product Specialization
   const [inventoryTypes, setInventoryTypes] = useState<string[]>([
     'Korean Heavy Puffers',
     'Heavy 450 GSM Fleece Hoodies',
   ]);
 
-  // Step 3: Financials & KYC Docs
+  // Step 3: GST & Bank Verification
   const [hasGstin, setHasGstin] = useState(true);
   const [gstin, setGstin] = useState('');
   const [bankAccountNumber, setBankAccountNumber] = useState('');
   const [bankIfscCode, setBankIfscCode] = useState('');
   const [accountHolderName, setAccountHolderName] = useState('');
-  const [bankName, setBankName] = useState('HDFC Bank, Panipat Branch');
-  const [gstDocName, setGstDocName] = useState<string>('');
-  const [yardPhotoName, setYardPhotoName] = useState<string>('');
+  const [bankName, setBankName] = useState('');
+  const [gstDocName, setGstDocName] = useState('');
+  const [yardPhotoName, setYardPhotoName] = useState('');
 
-  const toggleInventory = (type: string) => {
+  const toggleInventoryType = (type: string) => {
     if (inventoryTypes.includes(type)) {
       setInventoryTypes(inventoryTypes.filter((t) => t !== type));
     } else {
       setInventoryTypes([...inventoryTypes, type]);
     }
   };
+  const toggleInventory = toggleInventoryType;
 
-  const handleNext = (e: React.FormEvent) => {
+
+  const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
@@ -66,16 +71,16 @@ export default function SellerRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setRegisterError('');
 
     const sellerId = `pnp-seller-${Date.now().toString().slice(-6)}`;
-    const maskedCode = `#PNP-00${Math.floor(7 + Math.random() * 90)}`;
 
     const newProfile: SellerProfile & { password?: string } = {
       id: sellerId,
-      maskedCode,
+      maskedCode: '#PNP-PENDING',
       fullName,
       phone: phone.startsWith('+91') ? phone : `+91 ${phone}`,
-      email,
+      email: email.trim().toLowerCase(),
       password,
       businessName,
       godownZone,
@@ -90,8 +95,9 @@ export default function SellerRegisterPage() {
       gstDocUrl: gstDocName ? `https://pub-sourcepanipat.r2.dev/kyc/${gstDocName}` : undefined,
       yardPhotoUrl: yardPhotoName ? `https://pub-sourcepanipat.r2.dev/kyc/${yardPhotoName}` : undefined,
       verificationStatus: 'pending_approval',
+      accountStatus: 'active',
       rating: 5.0,
-      trustScore: 100.0, // Always starts at 100%
+      trustScore: 100.0,
       totalOrders: 0,
       fulfilledOrders: 0,
       cancelledOrders: 0,
@@ -100,46 +106,43 @@ export default function SellerRegisterPage() {
       createdAt: new Date().toISOString(),
     };
 
-    // 1. Try Supabase Auth Sign Up
-    if (supabase && email.includes('@') && password) {
-      try {
-        await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              business_name: businessName,
-              phone: phone,
-              godown_zone: godownZone,
-              role: 'seller',
+    try {
+      // 1. Try Supabase Auth Sign Up
+      if (supabase && email.includes('@') && password) {
+        try {
+          await supabase.auth.signUp({
+            email: email.trim().toLowerCase(),
+            password,
+            options: {
+              data: {
+                full_name: fullName,
+                business_name: businessName,
+                phone: phone,
+                godown_zone: godownZone,
+                role: 'seller',
+              },
             },
-          },
-        });
-      } catch (err) {
-        console.warn('Supabase seller registration error:', err);
+          });
+        } catch (err) {
+          console.warn('Supabase seller auth signup notice:', err);
+        }
       }
-    }
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sp_active_seller', JSON.stringify(newProfile));
-      localStorage.setItem('sp_pending_seller', JSON.stringify(newProfile));
+      // 2. Insert into Supabase sellers table
+      const savedProfile = await registerSellerInDb(newProfile);
 
-      // Append to sp_registered_sellers
-      const stored = localStorage.getItem('sp_registered_sellers');
-      let registered = [];
-      if (stored) {
-        try { registered = JSON.parse(stored); } catch (e) {}
+      // 3. Cache in localStorage for session handling
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sp_active_seller', JSON.stringify(savedProfile));
       }
-      registered = registered.filter((s: any) => s.email?.toLowerCase() !== email.toLowerCase());
-      registered.push(newProfile);
-      localStorage.setItem('sp_registered_sellers', JSON.stringify(registered));
-    }
 
-    setTimeout(() => {
-      setIsSubmitting(false);
       router.push('/seller/status/pending');
-    }, 800);
+    } catch (err: any) {
+      console.error('Registration failed:', err);
+      setRegisterError(err.message || 'Registration failed. Please check your internet or retry.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
 
@@ -159,6 +162,8 @@ export default function SellerRegisterPage() {
     'Korean Chunky Knit Sweaters',
     'Vintage 90s Windbreakers',
   ];
+
+  const handleNext = handleNextStep;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
@@ -188,6 +193,13 @@ export default function SellerRegisterPage() {
           </div>
         </div>
 
+        {registerError && (
+          <div className="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2 font-medium">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{registerError}</span>
+          </div>
+        )}
+
         {/* Form Container */}
         <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
           
@@ -198,6 +210,7 @@ export default function SellerRegisterPage() {
                 <h2 className="text-base sm:text-lg font-bold text-slate-900">
                   Step 1: Panipat Godown Owner Contact
                 </h2>
+
                 <p className="text-xs text-slate-500 mt-0.5">
                   Enter your official direct contact details for OTP and Panipat field coordination.
                 </p>

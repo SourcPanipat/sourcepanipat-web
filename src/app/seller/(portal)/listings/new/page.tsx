@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SourcingMode, BaleListingItem } from '@/types';
+import { createListingInDb } from '@/lib/supabase-db';
+
 import { 
   PlusCircle, 
   Upload, 
@@ -95,14 +97,33 @@ export default function NewListingPage() {
 
   const currentCategoryObj = categories.find((c) => c.id === masterCategory) || categories[0];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    let activeSellerId = 'pnp-seller-001';
+    if (typeof window !== 'undefined') {
+      const storedSeller = localStorage.getItem('sp_active_seller');
+      if (storedSeller) {
+        try {
+          const parsed = JSON.parse(storedSeller);
+          if (parsed.id) activeSellerId = parsed.id;
+          if (parsed.accountStatus === 'frozen') {
+            alert('Your account is frozen. You cannot create new listings.');
+            setIsSubmitting(false);
+            router.push('/seller/listings');
+            return;
+          }
+        } catch (e) {}
+      }
+    }
+
+    const cleanSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + `-${Date.now().toString().slice(-4)}`;
+
     const newLot: BaleListingItem = {
-      id: `bale-${Date.now().toString().slice(-4)}`,
-      slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      sellerId: 'pnp-001',
+      id: `bale-${Date.now().toString().slice(-6)}`,
+      slug: cleanSlug,
+      sellerId: activeSellerId,
       categoryId: masterCategory,
       subCategoryId: subCategory,
       categoryLabel: currentCategoryObj.name,
@@ -151,19 +172,20 @@ export default function NewListingPage() {
       createdAt: new Date().toISOString(),
     };
 
-
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('sp_seller_lots');
-      const existing = stored ? JSON.parse(stored) : [];
-      localStorage.setItem('sp_seller_lots', JSON.stringify([newLot, ...existing]));
-    }
-
-    setSubmittedSuccess(true);
-    setTimeout(() => {
+    try {
+      await createListingInDb(newLot);
+      setSubmittedSuccess(true);
+      setTimeout(() => {
+        setIsSubmitting(false);
+        router.push('/seller/listings');
+      }, 1000);
+    } catch (err: any) {
+      console.error('Error creating lot in Supabase:', err);
+      alert('Failed to save listing to database: ' + (err.message || 'Unknown error'));
       setIsSubmitting(false);
-      router.push('/seller/listings');
-    }, 1200);
+    }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

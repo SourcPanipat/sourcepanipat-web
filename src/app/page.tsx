@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+
 import { Header } from '@/components/Header';
 import { CategoryGrid } from '@/components/CategoryGrid';
 import { TrustStatsBanner } from '@/components/TrustStatsBanner';
@@ -8,7 +9,8 @@ import { ProductFeed } from '@/components/ProductFeed';
 import { VideoGradeModal } from '@/components/VideoGradeModal';
 import { EscrowCheckoutDrawer } from '@/components/EscrowCheckoutDrawer';
 import { Footer } from '@/components/Footer';
-import { MOCK_BALES, getBalesByCategory, searchBales } from '@/lib/mock-catalog';
+import { MOCK_BALES, searchBales } from '@/lib/mock-catalog';
+import { getApprovedMarketplaceListings } from '@/lib/supabase-db';
 import { BaleListing } from '@/types';
 import { ShieldCheck, Lock, Scale, Building } from 'lucide-react';
 
@@ -16,16 +18,43 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeSubCategory, setActiveSubCategory] = useState<string>('all');
+  const [dbBales, setDbBales] = useState<BaleListing[]>([]);
   
   // Modals & Drawers
   const [selectedVideoBale, setSelectedVideoBale] = useState<BaleListing | null>(null);
   const [checkoutBale, setCheckoutBale] = useState<BaleListing | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  // Dynamic Filtering by Master Category + SubCategory + Search Query
+  // Fetch approved listings from Supabase on mount and on category change
+  useEffect(() => {
+    async function loadLiveBales() {
+      try {
+        const live = await getApprovedMarketplaceListings(
+          activeCategory !== 'all' ? activeCategory : undefined,
+          activeSubCategory !== 'all' ? activeSubCategory : undefined
+        );
+        setDbBales(live);
+      } catch (e) {
+        console.warn('Error fetching live marketplace bales from Supabase:', e);
+      }
+    }
+
+    loadLiveBales();
+  }, [activeCategory, activeSubCategory]);
+
+  // Dynamic Filtering by Search Query
   const filteredBales = useMemo(() => {
-    return searchBales(searchQuery, activeCategory, activeSubCategory);
-  }, [searchQuery, activeCategory, activeSubCategory]);
+    const source = dbBales.length > 0 ? dbBales : searchBales(searchQuery, activeCategory, activeSubCategory);
+    if (!searchQuery.trim()) return source;
+    const q = searchQuery.toLowerCase();
+    return source.filter((bale) =>
+      bale.title?.toLowerCase().includes(q) ||
+      bale.shortDescription?.toLowerCase().includes(q) ||
+      bale.originCountry?.toLowerCase().includes(q) ||
+      bale.seller?.maskedCode?.toLowerCase().includes(q)
+    );
+  }, [dbBales, searchQuery, activeCategory, activeSubCategory]);
+
 
   const handleOpenVideoPreview = (bale: BaleListing) => {
     setSelectedVideoBale(bale);

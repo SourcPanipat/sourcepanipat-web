@@ -18,49 +18,35 @@ import {
   Ban
 } from 'lucide-react';
 
+import { getSellerOrdersFromDb } from '@/lib/supabase-db';
+
 export default function SellerOrdersPage() {
   const [orders, setOrders] = useState<SellerOrderDispatch[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const storedOrders = localStorage.getItem('sp_escrow_orders');
-    const recentOrder = localStorage.getItem('sp_recent_order');
-    let all: SellerOrderDispatch[] = [];
-    if (storedOrders) {
-      try { all = JSON.parse(storedOrders); } catch (e) {}
-    }
-    if (recentOrder) {
+    async function loadOrders() {
+      if (typeof window === 'undefined') return;
+      const stored = localStorage.getItem('sp_active_seller');
+      let sellerId = 'pnp-seller-001';
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.id) sellerId = parsed.id;
+        } catch (e) {}
+      }
+
       try {
-        const parsed = JSON.parse(recentOrder);
-        if (!all.some(o => o.orderNumber === parsed.orderNumber || o.id === parsed.id)) {
-          all.unshift({
-            id: parsed.id || 'ORD-NEW',
-            orderNumber: parsed.orderNumber || parsed.id,
-            baleId: parsed.baleId || 'bale-new',
-            baleTitle: parsed.baleTitle || 'Wholesale Lot',
-            baleThumbnail: parsed.baleThumbnail || '',
-            baleWeightKg: parsed.baleWeightKg || 80,
-            buyMode: parsed.buyMode || 'sealed_bale',
-            quantity: parsed.quantityBales || 1,
-            totalAmount: parsed.totalPayable || 30000,
-            buyerName: parsed.buyerName || 'Verified Buyer',
-            buyerPhone: parsed.buyerPhone || '+91 89502 02286',
-            buyerBusinessName: parsed.buyerBusinessName || 'Thrift Store',
-            buyerCity: parsed.deliveryCity || 'Delhi',
-            buyerState: parsed.deliveryState || 'Delhi NCR',
-            deliveryAddress: parsed.deliveryAddress || 'Delivery Address',
-            escrowStatus: parsed.escrowStatus || 'ESCROW_LOCKED',
-            sellerStatus: 'new',
-            settlementStatus: 'escrow_locked',
-            inspectorName: parsed.inspector?.name || 'Vikram S. (#PNP-INSP-04)',
-            inspectorPhone: parsed.inspector?.phone || '+91 89502 02286',
-            verifiedTareWeightKg: parsed.inspector?.verifiedTareWeightKg || 80,
-            createdAt: new Date().toISOString(),
-          });
-        }
-      } catch (e) {}
+        const dbOrders = await getSellerOrdersFromDb(sellerId);
+        setOrders(dbOrders);
+      } catch (err) {
+        console.error('Error loading seller orders:', err);
+      } finally {
+        setIsLoading(false);
+      }
     }
-    setOrders(all);
+
+    loadOrders();
   }, []);
 
   const [activeTab, setActiveTab] = useState<'all' | 'new' | 'confirmed' | 'dispatched' | 'completed' | 'cancelled'>('all');

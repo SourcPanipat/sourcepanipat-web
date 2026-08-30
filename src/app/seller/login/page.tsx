@@ -7,7 +7,9 @@ import { SellerPublicNav } from '@/components/seller/SellerPublicNav';
 import { SellerFooter } from '@/components/seller/SellerFooter';
 import { SellerProfile } from '@/types';
 import { supabase } from '@/lib/supabase-client';
+import { getSellerByEmailFromDb, mapDbSellerToProfile } from '@/lib/supabase-db';
 import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+
 
 export default function SellerLoginPage() {
   const router = useRouter();
@@ -31,93 +33,68 @@ export default function SellerLoginPage() {
     }
 
     try {
-      // 1. Check local registered sellers store
+      // 1. Fetch real seller from Supabase database
       let matchedSeller: (SellerProfile & { password?: string }) | null = null;
-      if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('sp_registered_sellers');
-        if (stored) {
-          try {
-            const sellers: any[] = JSON.parse(stored);
-            matchedSeller = sellers.find(
-              (s) =>
-                s.email?.toLowerCase() === inputClean ||
-                s.phone?.replace(/[^0-9]/g, '') === inputClean.replace(/[^0-9]/g, '')
-            );
-          } catch (err) {}
-        }
 
-        // Also check if active seller matches
-        if (!matchedSeller) {
-          const active = localStorage.getItem('sp_active_seller');
-          if (active) {
-            try {
-              const activeParsed = JSON.parse(active);
-              if (
-                activeParsed.email?.toLowerCase() === inputClean ||
-                activeParsed.phone?.replace(/[^0-9]/g, '') === inputClean.replace(/[^0-9]/g, '')
-              ) {
-                matchedSeller = activeParsed;
-              }
-            } catch (err) {}
-          }
+      if (inputClean.includes('@')) {
+        matchedSeller = await getSellerByEmailFromDb(inputClean);
+      } else {
+        // Search by phone in Supabase
+        const { data: phoneMatch } = await supabase
+          .from('sellers')
+          .select('*')
+          .ilike('phone', `%${inputClean.replace(/[^0-9]/g, '')}%`)
+          .maybeSingle();
+
+        if (phoneMatch) {
+          const profile = mapDbSellerToProfile(phoneMatch);
+          matchedSeller = {
+            ...profile,
+            password: phoneMatch.password_hash || undefined,
+          };
         }
       }
 
-      // 2. Try Supabase Auth Sign In as well
+      // 2. Also check Supabase Auth signIn
+      let isAuthSuccess = false;
       if (supabase && inputClean.includes('@')) {
         try {
           const { data: supaData, error: supaError } = await supabase.auth.signInWithPassword({
             email: inputClean,
             password: passClean,
           });
-
-          if (supaData?.user && !matchedSeller) {
-            matchedSeller = {
-              id: supaData.user.id,
-              maskedCode: '#PNP-001',
-              fullName: supaData.user.user_metadata?.full_name || 'Panipat Trader',
-              phone: supaData.user.user_metadata?.phone || '+91 89502 02286',
-              email: supaData.user.email || inputClean,
-              businessName: supaData.user.user_metadata?.business_name || 'Panipat Godown Syndicate',
-              godownZone: 'Sanoli Road Godown Hub',
-              yardAddress: 'Sanoli Road Godown Hub, Panipat',
-              primaryInventoryTypes: ['Winter Outerwear', 'Fleece Hoodies'],
-              isGstinRegistered: false,
-              bankAccountNumber: '',
-
-              bankIfscCode: '',
-              accountHolderName: '',
-              bankName: '',
-              verificationStatus: 'approved',
-              rating: 5.0,
-              trustScore: 100,
-              totalOrders: 0,
-              fulfilledOrders: 0,
-              cancelledOrders: 0,
-              totalDispatchedBales: 0,
-              repeatBuyerRate: 100,
-              createdAt: new Date().toISOString(),
-            };
+          if (supaData?.user && !supaError) {
+            isAuthSuccess = true;
           }
         } catch (supaErr) {
-          console.warn('Supabase auth check:', supaErr);
+          console.warn('Supabase auth signIn check:', supaErr);
         }
       }
 
-      // 3. Password Verification
+      // 3. Validation
       if (!matchedSeller) {
-        setErrorMsg('No seller account found with this email/phone. Please check your credentials or register your godown.');
+        setErrorMsg('No registered godown seller account found with this email/phone. Please verify your credentials or apply for godown verification.');
         setIsLoading(false);
         return;
       }
 
-      if (matchedSeller.password && matchedSeller.password !== passClean) {
-        setErrorMsg('Incorrect password. Please verify your password and try again.');
+      // Verify password (either Supabase Auth success or password_hash match)
+      const isPasswordCorrect = isAuthSuccess || (matchedSeller.password && matchedSeller.password === passClean);
+
+      if (!isPasswordCorrect) {
+        setErrorMsg('Incorrect password. Please enter the password you registered your godown account with.');
         setIsLoading(false);
         return;
       }
 
-      // 4. Save active session
+      // Check Deactivated status
+      if (matchedSeller.accountStatus === 'deactivated') {
+        setErrorMsg('Your godown account has been DEACTIVATED by Panipat Central Admin Desk. Please contact Ground Support on WhatsApp.');
+        setIsLoading(false);
+        return;
+      }
+
+      // 4. Save active session cache
       if (typeof window !== 'undefined') {
         localStorage.setItem('sp_active_seller', JSON.stringify(matchedSeller));
       }
@@ -129,11 +106,13 @@ export default function SellerLoginPage() {
         router.push('/seller/dashboard');
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Login failed. Please try again.');
+      console.error('Login error:', err);
+      setErrorMsg(err.message || 'Login failed. Please check your connection and retry.');
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
