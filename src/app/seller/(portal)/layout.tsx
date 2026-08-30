@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { SellerProfile } from '@/types';
 import { SellerSidebar } from '@/components/seller/SellerSidebar';
 import { SellerTopBar } from '@/components/seller/SellerTopBar';
+import { SquareLoader } from '@/components/SquareLoader';
 
 export default function SellerPortalLayout({
   children,
@@ -12,37 +13,40 @@ export default function SellerPortalLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('sp_active_seller');
-      if (stored) {
-        try {
-          const parsed: SellerProfile = JSON.parse(stored);
-          if (parsed.verificationStatus === 'pending_approval') {
-            router.push('/seller/status/pending');
+    setIsLoading(true);
+
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('sp_active_seller');
+        if (stored) {
+          try {
+            const parsed: SellerProfile = JSON.parse(stored);
+            if (parsed.verificationStatus === 'pending_approval') {
+              router.push('/seller/status/pending');
+              return;
+            }
+            setSeller(parsed);
+            setIsLoading(false);
             return;
-          }
-          setSeller(parsed);
-          setIsLoading(false);
-          return;
-        } catch (e) {}
+          } catch (e) {}
+        }
+        
+        // If no valid active seller logged in, redirect to login
+        setIsLoading(false);
+        router.push('/seller/login');
       }
-      
-      // If no valid active seller logged in, redirect to login
-      setIsLoading(false);
-      router.push('/seller/login');
-    }
-  }, [router]);
+    }, 650);
+
+    return () => clearTimeout(timer);
+  }, [pathname, router]);
 
   if (isLoading || !seller) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-xs text-slate-500 font-medium">
-        Loading Godown Portal...
-      </div>
-    );
+    return <SquareLoader fullScreen={true} />;
   }
 
   return (

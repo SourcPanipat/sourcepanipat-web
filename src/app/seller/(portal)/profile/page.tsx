@@ -15,6 +15,8 @@ import {
   CreditCard,
   Camera
 } from 'lucide-react';
+import { SquareLoader } from '@/components/SquareLoader';
+
 
 export default function SellerProfilePage() {
   const [seller, setSeller] = useState<SellerProfile | null>(null);
@@ -100,12 +102,9 @@ export default function SellerProfilePage() {
   };
 
   if (!seller) {
-    return (
-      <div className="p-12 text-center text-xs text-slate-500 font-medium">
-        Loading Godown Profile...
-      </div>
-    );
+    return <SquareLoader fullScreen={true} />;
   }
+
 
 
   return (
