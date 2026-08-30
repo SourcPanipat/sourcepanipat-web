@@ -33181,12 +33181,52 @@ export const MOCK_BALES: BaleListing[] = [
   }
 ];
 
+function enrichBaleAttributes(bale: BaleListing): BaleListing {
+  const cat = (bale.categoryId || bale.category || '').toLowerCase();
+  const sub = (bale.subCategoryId || '').toLowerCase();
+  const title = (bale.title || '').toLowerCase();
+
+  let garmentType = bale.garmentType;
+  let targetGender = bale.targetGender || 'Unisex / Adult';
+  let primaryFabric = bale.primaryFabric;
+
+  if (!garmentType) {
+    if (sub.includes('puffer') || title.includes('puffer')) garmentType = 'Puffers';
+    else if (cat.includes('jacket') || title.includes('jacket') || title.includes('bomber')) garmentType = 'Jackets';
+    else if (cat.includes('fleece') || title.includes('hoodie') || title.includes('sweatshirt')) garmentType = 'Sweatshirts & Hoodies';
+    else if (cat.includes('denim') || title.includes('jeans') || title.includes('denim')) garmentType = 'Denim / Jeans';
+    else if (cat.includes('overcoat') || title.includes('trench') || title.includes('coat')) garmentType = 'Overcoats & Trench';
+    else if (cat.includes('shirt') || title.includes('shirt') || title.includes('flannel')) garmentType = 'Shirts';
+    else if (cat.includes('pant') || title.includes('cargo') || title.includes('trouser')) garmentType = 'Pants & Cargo';
+    else if (cat.includes('mink') || title.includes('blanket')) garmentType = 'Mink Blankets';
+    else garmentType = 'Assorted Mix';
+  }
+
+  if (!primaryFabric) {
+    if (garmentType === 'Puffers') primaryFabric = 'Heavy Down & Nylon';
+    else if (garmentType === 'Sweatshirts & Hoodies') primaryFabric = '100% Cotton Fleece';
+    else if (garmentType === 'Denim / Jeans') primaryFabric = 'Heavy Denim / Twill';
+    else if (garmentType === 'Overcoats & Trench') primaryFabric = 'Wool & Cashmere Blend';
+    else if (garmentType === 'Mink Blankets') primaryFabric = 'Polyester / Sherpa';
+    else primaryFabric = bale.fabricComposition || 'Mixed Vintage Fabrics';
+  }
+
+  return {
+    ...bale,
+    garmentType,
+    targetGender,
+    primaryFabric,
+  };
+}
+
 export function getBaleBySlug(slug: string): BaleListing | undefined {
   const found = MOCK_BALES.find((bale) => bale.slug === slug || bale.id === slug);
-  if (found) return found;
+  if (found) return enrichBaleAttributes(found);
   // Fallback match by partial slug or id
-  return MOCK_BALES.find((bale) => slug.includes(bale.id) || bale.slug.includes(slug)) || MOCK_BALES[0];
+  const fallback = MOCK_BALES.find((bale) => slug.includes(bale.id) || bale.slug.includes(slug)) || MOCK_BALES[0];
+  return fallback ? enrichBaleAttributes(fallback) : undefined;
 }
+
 
 export function getOrderById(orderId: string): EscrowOrderRecord | undefined {
   return MOCK_ORDERS[orderId] || Object.values(MOCK_ORDERS).find((o) => o.orderNumber === orderId || o.id === orderId);

@@ -132,15 +132,16 @@ export const bales = sqliteTable('bales', {
   inStockCount: integer('in_stock_count').notNull().default(1),
   viewCount: integer('view_count').default(0),
   inquiryCount: integer('inquiry_count').default(0),
-  isHotDeal: integer('is_hot_deal', { mode: 'boolean' }).default(false),
-  isFlashArrival: integer('is_flash_arrival', { mode: 'boolean' }).default(false),
-  
+  garmentType: text('garment_type').notNull().default('Assorted'),
+  targetGender: text('target_gender').notNull().default('Unisex'),
+  primaryFabric: text('primary_fabric').notNull().default('Mixed Fabrics'),
   fabricComposition: text('fabric_composition').notNull(),
   recommendedResaleChannel: text('recommended_resale_channel').notNull(),
   expectedGrossMargin: text('expected_gross_margin').notNull(),
   tags: text('tags').notNull(),
   createdAt: text('created_at').notNull(),
 });
+
 
 // 6. Escrow Orders Table
 export const orders = sqliteTable('orders', {

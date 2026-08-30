@@ -172,6 +172,9 @@ export interface BaleListing {
   isFlashArrival?: boolean;
   
   // SEO & Technical Specs
+  garmentType?: string;
+  targetGender?: string;
+  primaryFabric?: string;
   fabricComposition: string;
   recommendedResaleChannel: string;
   expectedGrossMargin: string;
@@ -207,6 +210,9 @@ export interface BaleListingItem {
   godownBatchId: string;
   qcVerified: boolean;
   inStockCount: number;
+  garmentType?: string;
+  targetGender?: string;
+  primaryFabric?: string;
   fabricComposition: string;
   expectedGrossMargin: string;
   status: ListingStatus; // 'draft' | 'pending_approval' | 'approved' | 'rejected'
@@ -214,6 +220,7 @@ export interface BaleListingItem {
   rejectionReason?: string;
   createdAt: string;
 }
+
 
 export interface BuyerAddress {
   id: string;

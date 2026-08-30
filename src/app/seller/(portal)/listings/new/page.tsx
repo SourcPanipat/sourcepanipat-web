@@ -35,6 +35,12 @@ export default function NewListingPage() {
   const [curatedMoq, setCuratedMoq] = useState<number>(25);
   const [inStockCount, setInStockCount] = useState<number>(5);
 
+  // Garment Attributes & Demographics
+  const [garmentType, setGarmentType] = useState('Puffers');
+  const [targetGender, setTargetGender] = useState('Unisex');
+  const [primaryFabric, setPrimaryFabric] = useState('Heavy Down & Nylon');
+
+
   // Quality Grades
   const [gradeA, setGradeA] = useState<number>(85);
   const [gradeB, setGradeB] = useState<number>(12);
@@ -136,11 +142,15 @@ export default function NewListingPage() {
       godownBatchId: 'BATCH-SANOLI-2026-W09',
       qcVerified: true,
       inStockCount,
-      fabricComposition: 'Heavyweight Winter Outerwear',
+      garmentType,
+      targetGender,
+      primaryFabric,
+      fabricComposition: primaryFabric || 'Heavyweight Winter Outerwear',
       expectedGrossMargin: '3.5x - 5.0x Margin',
       status: 'pending_approval', // Staging approval required!
       createdAt: new Date().toISOString(),
     };
+
 
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('sp_seller_lots');
@@ -237,7 +247,69 @@ export default function NewListingPage() {
             </div>
           </div>
 
+          {/* Garment Attributes & Demographics */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                Garment / Lot Type *
+              </label>
+              <select
+                value={garmentType}
+                onChange={(e) => setGarmentType(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-slate-800 focus:outline-none cursor-pointer"
+              >
+                <option value="Jackets">Jackets</option>
+                <option value="Puffers">Puffers</option>
+                <option value="Sweatshirts & Hoodies">Sweatshirts & Hoodies</option>
+                <option value="Denim / Jeans">Denim / Jeans</option>
+                <option value="Overcoats & Trench">Overcoats & Trench</option>
+                <option value="Shirts">Shirts</option>
+                <option value="T-Shirts">T-Shirts</option>
+                <option value="Pants & Cargo">Pants & Cargo</option>
+                <option value="Mink Blankets">Mink Blankets</option>
+                <option value="Assorted Mix">Assorted Mix</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                Target Gender *
+              </label>
+              <select
+                value={targetGender}
+                onChange={(e) => setTargetGender(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-slate-800 focus:outline-none cursor-pointer"
+              >
+                <option value="Unisex">Unisex</option>
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="Kids">Kids</option>
+                <option value="Mixed Lot">Mixed Lot</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1">
+                Primary Fabric / Material *
+              </label>
+              <select
+                value={primaryFabric}
+                onChange={(e) => setPrimaryFabric(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-slate-800 focus:outline-none cursor-pointer"
+              >
+                <option value="Heavy Down & Nylon">Heavy Down & Nylon</option>
+                <option value="100% Cotton Fleece">100% Cotton Fleece</option>
+                <option value="Heavy Denim / Twill">Heavy Denim / Twill</option>
+                <option value="Wool & Cashmere Blend">Wool & Cashmere Blend</option>
+                <option value="Polyester / Sherpa">Polyester / Sherpa</option>
+                <option value="Corduroy">Corduroy</option>
+                <option value="Mixed Vintage Fabrics">Mixed Vintage Fabrics</option>
+              </select>
+            </div>
+          </div>
+
           {/* Sourcing Mode Selector */}
+
           <div>
             <label className="text-[11px] font-medium text-slate-700 block mb-1.5">
               Lot Purchasing Mode (How can buyers purchase?) *

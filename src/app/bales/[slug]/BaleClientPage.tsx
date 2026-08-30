@@ -25,8 +25,12 @@ import {
   Building,
   Film,
   Layers,
-  MessageCircle
+  MessageCircle,
+  Tag,
+  Users,
+  Sparkles
 } from 'lucide-react';
+
 
 interface BaleClientPageProps {
   slug: string;
@@ -369,8 +373,55 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
               </div>
             </div>
 
+            {/* Key Lot Attributes & Composition */}
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-3">
+              <h2 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <Tag className="w-4 h-4 text-slate-700" />
+                <span>Key Lot Attributes & Composition</span>
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-800 shrink-0">
+                    <Tag className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-slate-500 font-semibold">Garment Type</div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">
+                      {bale.garmentType || 'Jackets & Outerwear'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-800 shrink-0">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-slate-500 font-semibold">Target Gender</div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">
+                      {bale.targetGender || 'Unisex / Adult'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-800 shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-slate-500 font-semibold">Primary Fabric / Material</div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5 truncate">
+                      {bale.primaryFabric || bale.fabricComposition || '100% Export Mix'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Verified Seller Godown Info */}
             <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
               <div className="flex items-center gap-3.5">
                 <div className="w-12 h-12 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-sm shrink-0 border border-slate-800">
                   {bale.seller?.maskedCode || '#PNP-001'}
