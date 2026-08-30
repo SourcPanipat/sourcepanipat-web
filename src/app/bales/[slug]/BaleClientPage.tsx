@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -8,6 +8,7 @@ import { Header } from '@/components/Header';
 import { VideoGradeModal } from '@/components/VideoGradeModal';
 import { EscrowCheckoutDrawer } from '@/components/EscrowCheckoutDrawer';
 import { Footer } from '@/components/Footer';
+import { SquareLoader } from '@/components/SquareLoader';
 import { MOCK_BALES, getBaleBySlug } from '@/lib/mock-catalog';
 import { BuyMode, BaleListing, BuyerUser } from '@/types';
 import { formatINR } from '@/lib/utils';
@@ -27,14 +28,21 @@ import {
   MessageCircle
 } from 'lucide-react';
 
-
-
 interface BaleClientPageProps {
   slug: string;
 }
 
 export function BaleClientPage({ slug }: BaleClientPageProps) {
+  const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
   const bale = getBaleBySlug(slug) || MOCK_BALES[0];
+
+  useEffect(() => {
+    // Dynamic smooth transition loader (650ms)
+    const timer = setTimeout(() => {
+      setIsPageLoading(false);
+    }, 650);
+    return () => clearTimeout(timer);
+  }, [slug]);
 
   if (!bale) {
     notFound();
@@ -47,6 +55,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   const [baleQuantity, setBaleQuantity] = useState<number>(1);
   const [curatedPieces, setCuratedPieces] = useState<number>(bale.curatedMoq || 25);
   const [includeShield, setIncludeShield] = useState<boolean>(true);
+
   
   // Modals & Auth Gate State
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
@@ -99,11 +108,24 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
     setIsCheckoutOpen(true);
   };
 
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <SquareLoader 
+          message="Loading Godown Lot & 30s Inspection Video..." 
+          subMessage="Connecting to Panipat Yard Desk & Live Tare Audits" 
+          fullScreen={true} 
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <Header
         onOpenCart={() => setIsCheckoutOpen(true)}
         cartCount={isCheckoutOpen ? 1 : 0}
+
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6">
