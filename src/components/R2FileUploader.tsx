@@ -3,6 +3,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Upload, X, Loader2, CheckCircle2, Film, Image as ImageIcon, FileText, AlertCircle } from 'lucide-react';
 
+import { uploadMediaDirectly } from '@/lib/client-upload';
+
 interface R2FileUploaderProps {
   folder: string;
   accept: string;
@@ -45,41 +47,12 @@ export function R2FileUploader({
   const isVideo = accept.includes('video');
   const isImage = accept.includes('image');
 
-  const uploadToR2 = useCallback(async (file: File | Blob, name: string) => {
+  const uploadToStorage = useCallback(async (file: File | Blob, name: string) => {
     setState('uploading');
-    setProgress(0);
-
-    const formData = new FormData();
-    formData.append('file', file, name);
-    formData.append('folder', folder);
+    setProgress(10);
 
     try {
-      // Use XMLHttpRequest for progress tracking
-      const result = await new Promise<{ success: boolean; url: string; key: string }>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/upload');
-
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            setProgress(Math.round((e.loaded / e.total) * 100));
-          }
-        };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              resolve(JSON.parse(xhr.responseText));
-            } catch {
-              reject(new Error('Invalid response'));
-            }
-          } else {
-            reject(new Error(`Upload failed: ${xhr.statusText}`));
-          }
-        };
-
-        xhr.onerror = () => reject(new Error('Network error during upload'));
-        xhr.send(formData);
-      });
+      const result = await uploadMediaDirectly(file, folder, (p) => setProgress(p));
 
       if (result.success && result.url) {
         setState('done');
@@ -94,6 +67,7 @@ export function R2FileUploader({
       setErrorMsg(err.message || 'Upload failed');
     }
   }, [folder, onUploadComplete]);
+
 
   const trimVideoTo30s = useCallback((file: File): Promise<Blob> => {
     return new Promise((resolve, reject) => {
@@ -203,18 +177,19 @@ export function R2FileUploader({
       try {
         const trimmedBlob = await trimVideoTo30s(file);
         const trimmedName = cleanName.replace(/\.[^.]+$/, '') + '.webm';
-        await uploadToR2(trimmedBlob, trimmedName);
+        await uploadToStorage(trimmedBlob, trimmedName);
       } catch (err: any) {
         // Fallback: upload original
-        await uploadToR2(file, cleanName);
+        await uploadToStorage(file, cleanName);
       }
     } else {
-      await uploadToR2(file, cleanName);
+      await uploadToStorage(file, cleanName);
     }
 
     // Reset input so same file can be re-selected
     if (inputRef.current) inputRef.current.value = '';
-  }, [maxSizeMB, isVideo, maxDurationSec, trimVideoTo30s, uploadToR2]);
+  }, [maxSizeMB, isVideo, maxDurationSec, trimVideoTo30s, uploadToStorage]);
+
 
   const handleRemove = () => {
     setState('idle');

@@ -17,8 +17,7 @@ import {
 } from 'lucide-react';
 import { SquareLoader } from '@/components/SquareLoader';
 import { updateSellerProfileInDb } from '@/lib/supabase-db';
-
-
+import { uploadMediaDirectly } from '@/lib/client-upload';
 
 export default function SellerProfilePage() {
   const [seller, setSeller] = useState<SellerProfile | null>(null);
@@ -41,8 +40,7 @@ export default function SellerProfilePage() {
     }
   }, []);
 
-
-  // 90% Canvas-Based JPEG Compression
+  // 90% Canvas-Based JPEG Compression + Direct Storage Upload
   const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -78,24 +76,17 @@ export default function SellerProfilePage() {
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
           setLogoPreview(compressedDataUrl);
 
-          // Upload to Backblaze B2
+          // Direct Browser Upload to Backblaze B2
           canvas.toBlob(async (blob) => {
             if (blob) {
-              const formData = new FormData();
-              formData.append('file', blob, `logo-${seller?.id || 'seller'}.jpg`);
-              formData.append('folder', 'profiles');
               try {
-                const res = await fetch('/api/upload', {
-                  method: 'POST',
-                  body: formData,
-                });
-                const data = await res.json();
-                if (data.success && data.url) {
-                  setSeller(prev => (prev ? { ...prev, logoUrl: data.url } : null));
-                  setLogoPreview(data.url);
+                const res = await uploadMediaDirectly(blob, 'profiles');
+                if (res.success && res.url) {
+                  setSeller(prev => (prev ? { ...prev, logoUrl: res.url } : null));
+                  setLogoPreview(res.url);
                 }
               } catch (uploadErr) {
-                console.warn('Error uploading logo to B2:', uploadErr);
+                console.warn('Error uploading logo directly to B2:', uploadErr);
               }
             }
           }, 'image/jpeg', 0.9);
@@ -106,6 +97,7 @@ export default function SellerProfilePage() {
     };
     reader.readAsDataURL(file);
   };
+
 
 
   const isFrozen = seller?.accountStatus === 'frozen';
