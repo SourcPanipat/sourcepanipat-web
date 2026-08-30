@@ -7,8 +7,9 @@ export function WhatsAppFloatingCTA() {
   return (
     <div className="fixed bottom-4 right-4 z-40">
       <a
-        href="https://wa.me/919876543210?text=Hi%20SourcePanipat,%20I%20want%20to%20know%20today%27s%20fresh%20bale%20arrivals"
+        href="https://wa.me/918950202286?text=Hi%20SourcePanipat,%20I%20want%20to%20know%20today%27s%20fresh%20bale%20arrivals"
         target="_blank"
+
         rel="noopener noreferrer"
         className="flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-2xl shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all group"
       >

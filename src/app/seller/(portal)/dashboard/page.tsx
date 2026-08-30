@@ -418,8 +418,9 @@ export default function SellerDashboardPage() {
                 Need tare inspection or 30s opening video for a new container shipment? Request a field auditor.
               </p>
               <a
-                href="https://wa.me/919876543210?text=Hi%20Panipat%20Trader%20Desk,%20I%20am%20#PNP-001%20and%20need%20a%20QC%20inspector%20at%20my%20yard"
+                href="https://wa.me/918950202286?text=Hi%20Panipat%20Trader%20Desk,%20I%20am%20#PNP-001%20and%20need%20a%20QC%20inspector%20at%20my%20yard"
                 target="_blank"
+
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors"
               >

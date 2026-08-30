@@ -218,7 +218,7 @@ export function Header({
             
             {/* WhatsApp Trader Desk */}
             <a
-              href="https://wa.me/919876543210?text=Hello%20SourcePanipat%20Trader%20Desk,%20I%20want%20to%20inquire%20about%20winter%20bale%20rates"
+              href="https://wa.me/918950202286?text=Hello%20SourcePanipat%20Trader%20Desk,%20I%20want%20to%20inquire%20about%20winter%20bale%20rates"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm transition-colors shadow-xs"
@@ -226,6 +226,7 @@ export function Header({
               <Phone className="w-3.5 h-3.5" />
               <span>Trader Desk</span>
             </a>
+
 
             {/* Escrow Orders Tracker Link */}
             <Link
@@ -364,13 +365,13 @@ export function Header({
                       )}
 
                       <a
-                        href="https://wa.me/919876543210"
+                        href="https://wa.me/918950202286"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full px-3 py-1.5 rounded-lg hover:bg-emerald-50 text-emerald-800 flex items-center gap-2.5 font-medium transition-colors text-[11px]"
                       >
                         <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Trader Desk (+91 98765 43210)</span>
+                        <span>Trader Desk (+91 89502 02286)</span>
                       </a>
 
                       <div className="pt-1 mt-1 border-t border-slate-100">
@@ -441,18 +442,19 @@ export function Header({
 
                       <div className="pt-1 mt-1 border-t border-slate-100">
                         <a
-                          href="https://wa.me/919876543210"
+                          href="https://wa.me/918950202286"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full px-3 py-1.5 rounded-lg hover:bg-emerald-50 text-emerald-800 flex items-center gap-2 text-[11px] font-semibold"
                         >
                           <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Trader Desk Support</span>
+                          <span>Trader Desk Support (+91 89502 02286)</span>
                         </a>
                       </div>
 
                     </div>
                   )}
+
 
                 </div>
               )}

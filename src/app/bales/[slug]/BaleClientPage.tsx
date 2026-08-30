@@ -596,13 +596,14 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                 </button>
 
                 <a
-                  href={`https://wa.me/919876543210?text=${encodeURIComponent(
+                  href={`https://wa.me/918950202286?text=${encodeURIComponent(
                     `Hi SourcePanipat Desk, I have a question regarding Lot #${bale.id} (${bale.title}) from ${getFormattedSellerName(bale.seller?.fullName, bale.seller?.maskedCode)}: `
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-medium transition text-sm shadow-xs"
                 >
+
                   <MessageCircle className="w-4 h-4 text-emerald-600" />
                   <span>Inquire About This Lot (Ground Desk)</span>
                 </a>

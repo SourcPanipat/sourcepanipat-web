@@ -40,7 +40,8 @@ export default function SellerOrdersPage() {
       sellerStatus: 'confirmed',
       settlementStatus: 'escrow_locked',
       inspectorName: 'Vikram S. (#PNP-INSP-04)',
-      inspectorPhone: '+91 98765 43210',
+      inspectorPhone: '+91 89502 02286',
+
       verifiedTareWeightKg: 81.4,
       createdAt: '2026-08-28T14:20:00Z',
     },

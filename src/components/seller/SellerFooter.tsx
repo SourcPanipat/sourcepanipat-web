@@ -50,8 +50,9 @@ export function SellerFooter() {
             <div className="space-y-1.5 text-[11px]">
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                <span>+91 98765 43210</span>
+                <span>+91 89502 02286</span>
               </div>
+
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-amber-400" />
                 <span>godown@sourcepanipat.com</span>

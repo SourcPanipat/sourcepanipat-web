@@ -445,7 +445,8 @@ export const MOCK_ORDERS: Record<string, EscrowOrderRecord> = {
     inspector: {
       name: 'Vikram S.',
       code: 'PNP-INSP-04',
-      phone: '+91 98765 43210',
+      phone: '+91 89502 02286',
+
       assignedAt: '2026-08-28T15:00:00Z',
       verifiedTareWeightKg: 81.4,
       openingVideoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
@@ -522,7 +523,8 @@ export const MOCK_ORDERS: Record<string, EscrowOrderRecord> = {
     inspector: {
       name: 'Vikram S.',
       code: 'PNP-INSP-04',
-      phone: '+91 98765 43210',
+      phone: '+91 89502 02286',
+
       assignedAt: '2026-08-24T10:00:00Z',
       verifiedTareWeightKg: 18.5,
       approvedAt: '2026-08-24T14:00:00Z',

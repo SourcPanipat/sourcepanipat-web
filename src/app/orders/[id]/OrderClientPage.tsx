@@ -111,8 +111,9 @@ export function OrderClientPage({ id }: OrderClientPageProps) {
 
           <div className="flex items-center gap-2">
             <a
-              href={`https://wa.me/919876543210?text=Hi%20SourcePanipat,%20query%20for%20Order%20${order.orderNumber}`}
+              href={`https://wa.me/918950202286?text=Hi%20SourcePanipat,%20query%20for%20Order%20${order.orderNumber}`}
               target="_blank"
+
               rel="noopener noreferrer"
               className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5"
             >

@@ -119,8 +119,9 @@ export default function PendingApprovalPage() {
           {/* Actions */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="https://wa.me/919876543210?text=Hi%20SourcePanipat,%20I%20have%20submitted%20my%20godown%20application%20and%20need%20expedited%20verification."
+              href="https://wa.me/918950202286?text=Hi%20SourcePanipat,%20I%20have%20submitted%20my%20godown%20application%20and%20need%20expedited%20verification."
               target="_blank"
+
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors"
             >

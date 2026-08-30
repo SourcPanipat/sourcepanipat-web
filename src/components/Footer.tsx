@@ -131,14 +131,15 @@ export function Footer() {
               </div>
               <div className="pt-1">
                 <a
-                  href="https://wa.me/919876543210"
+                  href="https://wa.me/918950202286"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs"
                 >
-                  <span>Chat with Trader Desk</span>
+                  <span>Chat with Trader Desk (+91 89502 02286)</span>
                 </a>
               </div>
+
             </div>
           </div>
 
