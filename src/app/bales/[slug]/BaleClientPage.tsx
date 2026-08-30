@@ -41,7 +41,7 @@ interface BaleClientPageProps {
 
 export function BaleClientPage({ slug }: BaleClientPageProps) {
   const [bale, setBale] = useState<BaleListing | null>(() => getBaleBySlug(slug) || null);
-  const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
+  const [isPageLoading, setIsPageLoading] = useState<boolean>(!getBaleBySlug(slug));
   const [mounted, setMounted] = useState<boolean>(false);
 
   // Buy Mode & Quantities State
@@ -75,23 +75,29 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   useEffect(() => {
     setMounted(true);
     let isMounted = true;
+
+    // Resolve actual slug from window if running in dynamic SPA fallback
+    const resolvedSlug = slug || (typeof window !== 'undefined' ? window.location.pathname.replace(/^\/bales\//, '').split('/')[0] : '');
+
     async function loadListing() {
       try {
-        const live = await getMarketplaceListingBySlug(slug);
-        if (live && isMounted) {
-          setBale(live);
-          if (live.sourcingMode === 'pieces_only') setSelectedBuyMode('curated_lot');
-          if (live.curatedMoq) setCuratedPieces(live.curatedMoq);
-          if (!live.videoClips || live.videoClips.length === 0) setActiveMediaTab('images');
-          setIsPageLoading(false);
-          return;
+        if (resolvedSlug) {
+          const live = await getMarketplaceListingBySlug(resolvedSlug);
+          if (live && isMounted) {
+            setBale(live);
+            if (live.sourcingMode === 'pieces_only') setSelectedBuyMode('curated_lot');
+            if (live.curatedMoq) setCuratedPieces(live.curatedMoq);
+            if (!live.videoClips || live.videoClips.length === 0) setActiveMediaTab('images');
+            setIsPageLoading(false);
+            return;
+          }
         }
       } catch (err) {
         console.warn('Error fetching live bale listing from Turso:', err);
       }
 
       if (isMounted) {
-        const fallback = getBaleBySlug(slug) || MOCK_BALES.find(b => b.slug === slug) || MOCK_BALES[0];
+        const fallback = getBaleBySlug(resolvedSlug) || MOCK_BALES.find(b => b.slug === resolvedSlug);
         setBale(fallback || null);
         if (fallback) {
           if (fallback.sourcingMode === 'pieces_only') setSelectedBuyMode('curated_lot');
@@ -108,13 +114,10 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
     };
   }, [slug]);
 
-  if (!mounted) {
+  if (!mounted || isPageLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
-        <div className="h-16 bg-white border-b border-slate-200" />
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <SquareLoader fullScreen={true} />
       </div>
     );
   }
@@ -143,6 +146,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
       </div>
     );
   }
+
 
   const videoClips = (bale.videoClips && bale.videoClips.length > 0) ? bale.videoClips : [];
   const hasVideos = videoClips.length > 0;
