@@ -13,14 +13,14 @@ import { MOCK_BALES, getBaleBySlug } from '@/lib/mock-catalog';
 import { BuyMode, BaleListing, BuyerUser } from '@/types';
 import { formatINR } from '@/lib/utils';
 import { getFormattedSellerName } from '@/lib/format-seller';
-import { 
-  ShieldCheck, 
-  Play, 
-  Volume2, 
-  VolumeX, 
-  ArrowLeft, 
-  Lock, 
-  Check, 
+import {
+  ShieldCheck,
+  Play,
+  Volume2,
+  VolumeX,
+  ArrowLeft,
+  Lock,
+  Check,
   Phone,
   Building,
   Film,
@@ -52,7 +52,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
     notFound();
   }
 
-  const initialBuyMode: BuyMode = 
+  const initialBuyMode: BuyMode =
     bale.sourcingMode === 'pieces_only' ? 'curated_lot' : 'sealed_bale';
 
   const [selectedBuyMode, setSelectedBuyMode] = useState<BuyMode>(initialBuyMode);
@@ -60,7 +60,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   const [curatedPieces, setCuratedPieces] = useState<number>(bale.curatedMoq || 25);
   const [includeShield, setIncludeShield] = useState<boolean>(true);
 
-  
+
   // Modals & Auth Gate State
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [selectedPreviewBale, setSelectedPreviewBale] = useState<BaleListing | null>(null);
@@ -83,7 +83,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   const totalBalesWeight = bale.weightKg * baleQuantity;
   const sealedBaleTotal = bale.sealedBalePrice * baleQuantity;
   const curatedLotTotal = curatedPieces * bale.curatedPiecePrice;
-  
+
   const currentSubtotal = selectedBuyMode === 'sealed_bale' ? sealedBaleTotal : curatedLotTotal;
   const shieldFee = includeShield ? 1000 : 0;
   const currentGst = Math.round(currentSubtotal * 0.05);
@@ -126,7 +126,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        
+
         {/* Back Link & Breadcrumb */}
         <div className="mb-4 flex items-center justify-between">
           <Link
@@ -148,13 +148,13 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
 
         {/* 2-Column Split: Media Gallery Left & Pricing Box Right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          
+
           {/* LEFT COLUMN: OLX Standard 16:9 Fixed Media Viewer */}
           <div className="lg:col-span-7 space-y-3">
-            
+
             {/* Main 16:9 Fixed Viewer with Solid Black Letterbox Space (OLX Standard) */}
             <div className="bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-md relative aspect-video w-full flex items-center justify-center border border-slate-800 group select-none">
-              
+
               {activeMediaTab === 'video' && hasVideos ? (
                 <div className="relative w-full h-full flex items-center justify-center bg-black">
                   <video
@@ -212,7 +212,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                   )}
                 </div>
               ) : (
-                <div 
+                <div
                   className="relative w-full h-full flex items-center justify-center bg-black cursor-pointer"
                   onClick={() => setSelectedPreviewBale(bale)}
                 >
@@ -259,7 +259,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
 
             {/* Amazon-Style Visual Thumbnail Grid (No Long Text Titles) */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              
+
               {/* Video Visual Thumbnails */}
               {videoClips.map((clip, vIdx) => {
                 const isSelected = activeMediaTab === 'video' && activeVideoIndex === vIdx;
@@ -271,11 +271,10 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                       setActiveVideoIndex(vIdx);
                       setIsPlaying(true);
                     }}
-                    className={`relative w-14 sm:w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black flex flex-col items-center justify-center group ${
-                      isSelected
+                    className={`relative w-14 sm:w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black flex flex-col items-center justify-center group ${isSelected
                         ? 'border-amber-500 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1'
                         : 'border-slate-300 opacity-80 hover:opacity-100'
-                    }`}
+                      }`}
                     title={`Video ${vIdx + 1}`}
                   >
                     <img
@@ -305,11 +304,10 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                       setActiveMediaTab('images');
                       setActiveImageIndex(idx);
                     }}
-                    className={`relative w-14 sm:w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black ${
-                      isSelected
+                    className={`relative w-14 sm:w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all bg-black ${isSelected
                         ? 'border-amber-500 scale-105 shadow-md ring-2 ring-amber-400 ring-offset-1'
                         : 'border-slate-300 opacity-70 hover:opacity-100'
-                    }`}
+                      }`}
                     title={`Photo ${idx + 1}`}
                   >
                     <img
@@ -365,10 +363,10 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                   <div className="font-bold flex items-center gap-1.5 text-amber-950">
                     <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
                     <span>SourcePanipat Quality & Tare Weight Guarantee</span>
-                  </div>
                   <p className="leading-snug">
                     Bale tare weight is audited by independent Panipat field coordinators before transport dispatch. If delivered weight deviates by &gt;1.5%, differential amount is auto-refunded to buyer escrow wallet.
                   </p>
+
                 </div>
               </div>
             </div>
@@ -448,9 +446,9 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
 
           {/* RIGHT COLUMN: Interactive Sourcing Box */}
           <div className="lg:col-span-5 space-y-4">
-            
+
             <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-md space-y-5 sticky top-20">
-              
+
               <div>
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
@@ -482,13 +480,12 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                     type="button"
                     disabled={bale.sourcingMode === 'pieces_only'}
                     onClick={() => setSelectedBuyMode('sealed_bale')}
-                    className={`p-3 rounded-xl border text-left transition-all relative ${
-                      selectedBuyMode === 'sealed_bale'
+                    className={`p-3 rounded-xl border text-left transition-all relative ${selectedBuyMode === 'sealed_bale'
                         ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
                         : bale.sourcingMode === 'pieces_only'
-                        ? 'opacity-40 bg-slate-50 border-slate-200 cursor-not-allowed text-slate-400'
-                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800'
-                    }`}
+                          ? 'opacity-40 bg-slate-50 border-slate-200 cursor-not-allowed text-slate-400'
+                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800'
+                      }`}
                   >
                     <div className="text-xs font-bold flex items-center justify-between">
                       <span>Sealed Bale</span>
@@ -508,13 +505,12 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                     type="button"
                     disabled={bale.sourcingMode === 'bale_only'}
                     onClick={() => setSelectedBuyMode('curated_lot')}
-                    className={`p-3 rounded-xl border text-left transition-all relative ${
-                      selectedBuyMode === 'curated_lot'
+                    className={`p-3 rounded-xl border text-left transition-all relative ${selectedBuyMode === 'curated_lot'
                         ? 'border-slate-900 bg-slate-900 text-white shadow-sm'
                         : bale.sourcingMode === 'bale_only'
-                        ? 'opacity-40 bg-slate-50 border-slate-200 cursor-not-allowed text-slate-400'
-                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800'
-                    }`}
+                          ? 'opacity-40 bg-slate-50 border-slate-200 cursor-not-allowed text-slate-400'
+                          : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800'
+                      }`}
                   >
                     <div className="text-xs font-bold flex items-center justify-between">
                       <span>Curated Pieces</span>
