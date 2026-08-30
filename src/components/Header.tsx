@@ -5,8 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { BuyerUser, SellerProfile } from '@/types';
-import { AuthModal } from './AuthModal';
+import { BuyerAuthModal as AuthModal } from './auth/BuyerAuthModal';
 import { 
+
   MapPin, 
   Search, 
   Phone, 

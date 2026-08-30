@@ -42,6 +42,25 @@ interface BaleClientPageProps {
 export function BaleClientPage({ slug }: BaleClientPageProps) {
   const [bale, setBale] = useState<BaleListing | null>(() => getBaleBySlug(slug) || null);
   const [isPageLoading, setIsPageLoading] = useState<boolean>(true);
+  const [mounted, setMounted] = useState<boolean>(false);
+
+  // Buy Mode & Quantities State
+  const [selectedBuyMode, setSelectedBuyMode] = useState<BuyMode>('sealed_bale');
+  const [baleQuantity, setBaleQuantity] = useState<number>(1);
+  const [curatedPieces, setCuratedPieces] = useState<number>(25);
+  const [includeShield, setIncludeShield] = useState<boolean>(true);
+
+  // Modals & Auth Gate State
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+  const [selectedPreviewBale, setSelectedPreviewBale] = useState<BaleListing | null>(null);
+
+  // Video Player & Media Tab Control State
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
+  const [activeMediaTab, setActiveMediaTab] = useState<'video' | 'images'>('video');
+  const [activeVideoIndex, setActiveVideoIndex] = useState<number>(0);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
   // 20-Listing Guest Gatekeeper
   const {
@@ -54,22 +73,31 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   } = useListingGate(bale?.id);
 
   useEffect(() => {
+    setMounted(true);
     let isMounted = true;
     async function loadListing() {
       try {
         const live = await getMarketplaceListingBySlug(slug);
         if (live && isMounted) {
           setBale(live);
+          if (live.sourcingMode === 'pieces_only') setSelectedBuyMode('curated_lot');
+          if (live.curatedMoq) setCuratedPieces(live.curatedMoq);
+          if (!live.videoClips || live.videoClips.length === 0) setActiveMediaTab('images');
           setIsPageLoading(false);
           return;
         }
       } catch (err) {
-        console.warn('Error fetching live bale listing from Supabase:', err);
+        console.warn('Error fetching live bale listing from Turso:', err);
       }
 
       if (isMounted) {
         const fallback = getBaleBySlug(slug) || MOCK_BALES.find(b => b.slug === slug) || MOCK_BALES[0];
         setBale(fallback || null);
+        if (fallback) {
+          if (fallback.sourcingMode === 'pieces_only') setSelectedBuyMode('curated_lot');
+          if (fallback.curatedMoq) setCuratedPieces(fallback.curatedMoq);
+          if (!fallback.videoClips || fallback.videoClips.length === 0) setActiveMediaTab('images');
+        }
         setIsPageLoading(false);
       }
     }
@@ -80,6 +108,16 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
     };
   }, [slug]);
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <div className="h-16 bg-white border-b border-slate-200" />
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   if (!bale) {
     return (
@@ -93,6 +131,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             This bale lot may have been booked, archived, or is currently under staging inspection.
           </p>
+
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"
@@ -105,33 +144,9 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
     );
   }
 
-  const initialBuyMode: BuyMode =
-    bale.sourcingMode === 'pieces_only' ? 'curated_lot' : 'sealed_bale';
-
-  const [selectedBuyMode, setSelectedBuyMode] = useState<BuyMode>(initialBuyMode);
-
-  const [baleQuantity, setBaleQuantity] = useState<number>(1);
-  const [curatedPieces, setCuratedPieces] = useState<number>(bale.curatedMoq || 25);
-  const [includeShield, setIncludeShield] = useState<boolean>(true);
-
-
-
-  // Modals & Auth Gate State
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
-  const [selectedPreviewBale, setSelectedPreviewBale] = useState<BaleListing | null>(null);
-
   const videoClips = (bale.videoClips && bale.videoClips.length > 0) ? bale.videoClips : [];
   const hasVideos = videoClips.length > 0;
   const images = (bale.galleryImages && bale.galleryImages.length > 0) ? bale.galleryImages : [bale.thumbnailUrl];
-
-  // Video Player & Media Tab Control State
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [isMuted, setIsMuted] = useState<boolean>(true);
-  const [activeMediaTab, setActiveMediaTab] = useState<'video' | 'images'>(hasVideos ? 'video' : 'images');
-  const [activeVideoIndex, setActiveVideoIndex] = useState<number>(0);
-  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
-
   const currentVideoUrl = hasVideos && videoClips[activeVideoIndex] ? videoClips[activeVideoIndex].videoUrl : '';
 
   // Pricing calculations
@@ -143,6 +158,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
   const shieldFee = includeShield ? 1000 : 0;
   const currentGst = Math.round(currentSubtotal * 0.05);
   const finalTotalAmount = currentSubtotal + shieldFee + currentGst;
+
 
   const handleVideoToggle = () => {
     if (videoRef.current) {
@@ -772,4 +788,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
     </div>
   );
 }
+
+export default BaleClientPage;
+
 
