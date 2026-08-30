@@ -11,6 +11,7 @@ import { Footer } from '@/components/Footer';
 import { MOCK_BALES, getBaleBySlug } from '@/lib/mock-catalog';
 import { BuyMode, BaleListing, BuyerUser } from '@/types';
 import { formatINR } from '@/lib/utils';
+import { getFormattedSellerName } from '@/lib/format-seller';
 import { 
   ShieldCheck, 
   Play, 
@@ -24,6 +25,7 @@ import {
   Film,
   Layers
 } from 'lucide-react';
+
 
 interface BaleClientPageProps {
   slug: string;
@@ -357,11 +359,13 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                   {bale.seller?.maskedCode || '#PNP-001'}
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-slate-900">Godown {bale.seller?.maskedCode || '#PNP-001'}</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-bold text-sm text-slate-900">
+                      {getFormattedSellerName(bale.seller?.fullName, bale.seller?.maskedCode)}
+                    </span>
                     <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded flex items-center gap-1">
                       <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                      Verified Yard
+                      100% Escrow & Tare Weight Protected
                     </span>
                     <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-1.5 py-0.2 rounded flex items-center gap-1">
                       <span>★</span>
@@ -371,7 +375,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                   <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
                     <span className="flex items-center gap-1">
                       <Building className="w-3.5 h-3.5 text-slate-400" />
-                      {bale.seller?.godownZone || 'Sanoli Road Godown Hub'}
+                      {bale.seller?.godownZone ? `${bale.seller.godownZone}, Panipat` : 'Sanoli Road Godown Hub, Panipat'}
                     </span>
                     <span>•</span>
                     <span className="text-amber-800 font-semibold">{bale.seller?.rating || 4.9} ★ ({bale.seller?.totalDispatchedBales || 140}+ Bales)</span>
@@ -385,6 +389,7 @@ export function BaleClientPage({ slug }: BaleClientPageProps) {
                 </span>
               </div>
             </div>
+
 
           </div>
 

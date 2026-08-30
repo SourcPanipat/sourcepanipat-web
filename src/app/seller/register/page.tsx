@@ -227,9 +227,16 @@ export default function SellerRegisterPage() {
                     className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-slate-800 focus:outline-none"
                   />
                 </div>
+
+                {/* Privacy & Buyer Identity Note */}
+                <div className="p-3 rounded-lg bg-amber-50/80 border border-amber-200/80 text-[11px] text-amber-900 leading-relaxed">
+                  <span className="font-semibold">Buyer Visibility Note:</span> Your full business and legal details remain strictly private for escrow verification. Buyers will see you as: <span className="font-bold text-slate-900">{fullName ? fullName.trim().split(/\s+/)[0] : '[Your First Name]'} · Verified Panipat Trader (#PNP-XXX)</span>.
+                </div>
               </div>
 
+
               <div className="pt-4 flex items-center justify-between border-t border-slate-100">
+
                 <Link href="/seller/login" className="text-xs text-slate-500 hover:text-slate-900">
                   Already registered? Sign In
                 </Link>

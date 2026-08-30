@@ -5,7 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { BaleListing } from '@/types';
 import { formatINR } from '@/lib/utils';
+import { getFormattedSellerName } from '@/lib/format-seller';
 import { Play, ShieldCheck } from 'lucide-react';
+
 
 interface ProductCardProps {
   bale: BaleListing;
@@ -115,13 +117,13 @@ export function ProductCard({ bale, onPreviewVideo }: ProductCardProps) {
           </div>
         </div>
 
-        {/* Line 4: Location & Seller Trust Score / QC Shield Footer */}
+        {/* Line 4: Formatted Seller & Seller Trust Score / QC Shield Footer */}
         <div className="pt-1.5 mt-0.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-          <span className="truncate max-w-[110px]">
-            {bale.seller?.godownZone ? bale.seller.godownZone.split(' ')[0] : 'Sanoli'} Hub
+          <span className="truncate max-w-[130px] font-medium text-slate-700" title={getFormattedSellerName(bale.seller?.fullName, bale.seller?.maskedCode)}>
+            {getFormattedSellerName(bale.seller?.fullName, bale.seller?.maskedCode)}
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-[9.5px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded flex items-center gap-0.5">
+            <span className="text-[9.5px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded flex items-center gap-0.5" title="Seller Fulfillment Trust Score">
               <span>★</span>
               <span>{bale.seller?.trustScore || 100}%</span>
             </span>
@@ -135,4 +137,5 @@ export function ProductCard({ bale, onPreviewVideo }: ProductCardProps) {
     </Link>
   );
 }
+
 

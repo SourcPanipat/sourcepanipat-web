@@ -80,6 +80,7 @@ export interface MediaItem {
 export interface MaskedSeller {
   id: string; // e.g. 'PNP-001'
   maskedCode: string; // '#PNP-001'
+  fullName?: string; // e.g. 'Rajesh Kumar'
   supplierTier: 'Gold Vetted Importer' | 'Direct Mill Godown' | 'Graded Sorting Hub';
   godownZone: 'Sanoli Road Godown Hub' | 'Noorwala Industrial Area' | 'Barsat Road Sorting Yard' | 'G.T. Road Wholesale Cluster';
   rating: number; // 4.9
@@ -89,6 +90,7 @@ export interface MaskedSeller {
   isVerified: boolean;
   memberSince: string;
 }
+
 
 export interface SellerProfile {
   id: string;

@@ -4,6 +4,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
   "pnp-001": {
     "id": "pnp-001",
     "maskedCode": "#PNP-001",
+    "fullName": "Rajesh Gupta",
     "supplierTier": "Gold Vetted Importer",
     "godownZone": "Sanoli Road Godown Hub",
     "rating": 4.96,
@@ -15,6 +16,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
   "pnp-002": {
     "id": "pnp-002",
     "maskedCode": "#PNP-002",
+    "fullName": "Vikram Sharma",
     "supplierTier": "Direct Mill Godown",
     "godownZone": "Noorwala Industrial Area",
     "rating": 4.88,
@@ -26,6 +28,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
   "pnp-003": {
     "id": "pnp-003",
     "maskedCode": "#PNP-003",
+    "fullName": "Suresh Goel",
     "supplierTier": "Graded Sorting Hub",
     "godownZone": "Barsat Road Sorting Yard",
     "rating": 4.92,
@@ -37,6 +40,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
   "pnp-004": {
     "id": "pnp-004",
     "maskedCode": "#PNP-004",
+    "fullName": "Anil Batra",
     "supplierTier": "Gold Vetted Importer",
     "godownZone": "Sanoli Road Godown Hub",
     "rating": 4.94,
@@ -48,6 +52,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
   "pnp-005": {
     "id": "pnp-005",
     "maskedCode": "#PNP-005",
+    "fullName": "Harish Chawla",
     "supplierTier": "Direct Mill Godown",
     "godownZone": "Barsat Road Sorting Yard",
     "rating": 4.85,
@@ -59,6 +64,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
   "pnp-006": {
     "id": "pnp-006",
     "maskedCode": "#PNP-006",
+    "fullName": "Manoj Singhal",
     "supplierTier": "Graded Sorting Hub",
     "godownZone": "Noorwala Industrial Area",
     "rating": 4.91,
@@ -68,6 +74,7 @@ export const MASKED_SELLERS: Record<string, MaskedSeller> = {
     "memberSince": "May 2022"
   }
 };
+
 
 export const CATEGORIES: Category[] = [
   {
